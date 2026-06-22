@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import { projects } from "@/data/projects";
 import Link from "next/link";
+import { getAssetPath } from "@/utils/paths";
 
 // Clean minimal SVG Arrow Icon
 const ArrowIcon = () => (
@@ -94,7 +95,7 @@ export default function Home() {
                   )}
                   {project.downloadUrl && (
                     <a
-                      href={project.downloadUrl}
+                      href={getAssetPath(project.downloadUrl)}
                       download
                       className={styles.projectLink}
                     >

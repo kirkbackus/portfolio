@@ -1,5 +1,6 @@
 import styles from "./desktop-goat.module.css";
 import Link from "next/link";
+import { getAssetPath } from "@/utils/paths";
 
 // Clean minimal SVG Arrow Icon
 const ArrowIcon = () => (
@@ -64,7 +65,7 @@ export default function DesktopGoatPage() {
 
         <div className={styles.btnGroup}>
           <a
-            href="/downloads/desktop-goat-win-x64.zip"
+            href={getAssetPath("/downloads/desktop-goat-win-x64.zip")}
             download
             className={styles.primaryBtn}
           >
@@ -162,7 +163,7 @@ export default function DesktopGoatPage() {
             <div className={styles.gallery}>
               <div className={styles.imageContainer}>
                 <img
-                  src="/images/desktop-goat/ideal-ui.png"
+                  src={getAssetPath("/images/desktop-goat/ideal-ui.png")}
                   alt="Desktop Goat Ideal Interface Design Mockup"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
@@ -171,7 +172,7 @@ export default function DesktopGoatPage() {
 
               <div className={styles.imageContainer}>
                 <img
-                  src="/images/desktop-goat/farm_preferences_ui_mockup.png"
+                  src={getAssetPath("/images/desktop-goat/farm_preferences_ui_mockup.png")}
                   alt="Desktop Goat Preferences Settings UI Mockup"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />

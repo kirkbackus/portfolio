@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import styles from "./projects.module.css";
 import { projects } from "@/data/projects";
 import Link from "next/link";
+import { getAssetPath } from "@/utils/paths";
 
 // Clean minimal SVG Arrow Icon
 const ArrowIcon = () => (
@@ -142,7 +143,7 @@ export default function ProjectsPage() {
                   )}
                   {project.downloadUrl && (
                     <a
-                      href={project.downloadUrl}
+                      href={getAssetPath(project.downloadUrl)}
                       download
                       className={styles.projectLink}
                     >

@@ -1,5 +1,6 @@
 import styles from "./voice-keyboard.module.css";
 import Link from "next/link";
+import { getAssetPath } from "@/utils/paths";
 
 // Clean minimal SVG Arrow Icon
 const ArrowIcon = () => (
@@ -63,7 +64,7 @@ export default function VoiceKeyboardPage() {
 
         <div className={styles.btnGroup}>
           <a
-            href="/downloads/voice-keyboard-win-x64.zip"
+            href={getAssetPath("/downloads/voice-keyboard-win-x64.zip")}
             download
             className={styles.primaryBtn}
           >
@@ -161,7 +162,7 @@ export default function VoiceKeyboardPage() {
             <div className={styles.gallery}>
               <div className={styles.imageContainer}>
                 <img
-                  src="/images/voice-keyboard/main-ui.png"
+                  src={getAssetPath("/images/voice-keyboard/main-ui.png")}
                   alt="Voice Keyboard Overlay Mockup"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
@@ -170,7 +171,7 @@ export default function VoiceKeyboardPage() {
 
               <div className={styles.imageContainer}>
                 <img
-                  src="/images/voice-keyboard/settings-ui.png"
+                  src={getAssetPath("/images/voice-keyboard/settings-ui.png")}
                   alt="Voice Keyboard Settings UI Mockup"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
