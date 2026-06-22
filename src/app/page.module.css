@@ -1,142 +1,279 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
+.hero {
+  min-height: 75vh;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  align-items: flex-start;
+  padding-top: 120px;
+  padding-bottom: 80px;
 }
 
-.main {
-  display: flex;
-  flex: 1;
-  width: 100%;
+.eyebrow {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 16px;
+}
+
+.heroTitle {
+  font-size: 56px;
+  line-height: 1.1;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.035em;
+  margin-bottom: 24px;
   max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
 }
 
-.intro {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
+.heroSubtitle {
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-regular);
+  max-width: 680px;
+  letter-spacing: -0.015em;
 }
 
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
+.sectionHeader {
+  margin-bottom: 48px;
 }
 
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
+.sectionTitle {
+  font-size: 32px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.sectionSubtitle {
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
+/* Projects grid and cards */
+.projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
 }
 
-.ctas {
+.projectCard {
+  background-color: var(--card-background);
+  padding: 44px;
+  border-radius: 20px;
   display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 300px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border);
+}
+
+.projectCard:hover {
+  transform: scale(1.01) translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+}
+
+.projectHeader {
+  margin-bottom: 24px;
+}
+
+.projectTitle {
+  font-size: 22px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.015em;
+  margin-bottom: 12px;
+}
+
+.projectDescription {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.projectFooter {
+  margin-top: 32px;
+}
+
+.projectTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.tag {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  padding: 4px 10px;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--foreground);
+  border-radius: 100px;
+}
+
+:global(.dark) .tag {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.projectLinks {
+  display: flex;
+  gap: 20px;
+}
+
+.projectLink {
   font-size: 14px;
-}
-
-.ctas a {
-  display: flex;
-  justify-content: center;
+  font-weight: var(--font-weight-medium);
+  color: var(--accent);
+  display: inline-flex;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+  gap: 4px;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
+.projectLink:hover {
+  text-decoration: underline;
+}
+
+/* About Layout */
+.aboutContent {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 80px;
+}
+
+.aboutTitle {
+  font-size: 32px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+
+.aboutText {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+
+.aboutParagraph {
+  margin-bottom: 24px;
+}
+
+.skillsGroup {
+  margin-top: 40px;
+}
+
+.skillsTitle {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 16px;
+}
+
+.skillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.skillItem {
+  font-size: 15px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.skillDot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent);
+  border-radius: 50%;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+/* Contact layout */
+.contactContent {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
+.contactTitle {
+  font-size: 40px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
 
-  .intro {
-    gap: 16px;
-  }
+.contactDescription {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  line-height: 1.5;
+}
 
-  .intro h1 {
+.contactLinks {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.contactButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  border-radius: 100px;
+  transition: all 0.2s ease;
+}
+
+.contactButtonPrimary {
+  background-color: var(--foreground);
+  color: var(--background);
+}
+
+.contactButtonPrimary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.contactButtonSecondary {
+  background-color: var(--card-background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.contactButtonSecondary:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 60vh;
+    padding-top: 100px;
+  }
+  
+  .heroTitle {
+    font-size: 40px;
+  }
+  
+  .heroSubtitle {
+    font-size: 18px;
+  }
+  
+  .projectsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .aboutContent {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .contactTitle {
     font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
   }
 }
