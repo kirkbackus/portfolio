@@ -18,5 +18,14 @@ export const projects: Project[] = [
     demoUrl: "/projects/desktop-goat",
     downloadUrl: "/downloads/desktop-goat-win-x64.zip",
     featured: true
+  },
+  {
+    id: "6",
+    title: "Voice Keyboard",
+    description: "A hands-free, global voice-to-text dictation utility for Windows. Dictate text anywhere using global hotkeys, offline Whisper.NET speech recognition, and LLamaSharp-powered local LLM text cleanup.",
+    tags: ["C#", "WinForms", "Speech Recognition", "Whisper.NET", "Local LLM", "NAudio"],
+    demoUrl: "/projects/voice-keyboard",
+    downloadUrl: "/downloads/voice-keyboard-win-x64.zip",
+    featured: true
   }
 ];
