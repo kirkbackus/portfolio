@@ -37,13 +37,13 @@ export default function RootLayout({
             <nav>
               <ul className={styles.navLinks}>
                 <li className={styles.navItem}>
-                  <Link href="#work">Work</Link>
+                  <Link href="/projects">Projects</Link>
                 </li>
                 <li className={styles.navItem}>
-                  <Link href="#about">About</Link>
+                  <Link href="/#about">About</Link>
                 </li>
                 <li className={styles.navItem}>
-                  <Link href="#contact">Contact</Link>
+                  <Link href="/#contact">Contact</Link>
                 </li>
               </ul>
             </nav>

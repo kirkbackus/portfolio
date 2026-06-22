@@ -1,5 +1,6 @@
 import styles from "./page.module.css";
 import { projects } from "@/data/projects";
+import Link from "next/link";
 
 // Clean minimal SVG Arrow Icon
 const ArrowIcon = () => (
@@ -17,6 +18,9 @@ const GithubIcon = () => (
 );
 
 export default function Home() {
+  // Only display featured projects on the homepage
+  const featuredProjects = projects.filter((project) => project.featured);
+
   return (
     <div className="container">
       {/* Hero Section */}
@@ -30,14 +34,15 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Projects Section */}
+      {/* Featured Projects Section */}
       <section id="work" className="animate-fade-in delay-100">
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Selected Work</h2>
-          <p className={styles.sectionSubtitle}>A curation of engineering projects and open-source software.</p>
+          <h2 className={styles.sectionTitle}>Featured Work</h2>
+          <p className={styles.sectionSubtitle}>A selection of engineering projects and open-source software.</p>
         </div>
+        
         <div className={styles.projectsGrid}>
-          {projects.map((project) => (
+          {featuredProjects.map((project) => (
             <article key={project.id} className={styles.projectCard}>
               <div className={styles.projectHeader}>
                 <h3 className={styles.projectTitle}>{project.title}</h3>
@@ -76,6 +81,12 @@ export default function Home() {
               </div>
             </article>
           ))}
+        </div>
+
+        <div className={styles.viewAllContainer}>
+          <Link href="/projects" className={styles.viewAllLink}>
+            View All Projects <ArrowIcon />
+          </Link>
         </div>
       </section>
 
