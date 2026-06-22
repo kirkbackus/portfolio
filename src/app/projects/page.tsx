@@ -3,12 +3,22 @@
 import { useState, useMemo } from "react";
 import styles from "./projects.module.css";
 import { projects } from "@/data/projects";
+import Link from "next/link";
 
 // Clean minimal SVG Arrow Icon
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: "4px" }}>
     <path d="M2.08333 1.5H10.5V9.91667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M10.5 1.5L1.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Clean minimal SVG Download Icon
+const DownloadIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: "4px" }}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 );
 
@@ -115,13 +125,28 @@ export default function ProjectsPage() {
                     </a>
                   )}
                   {project.demoUrl && (
+                    project.demoUrl.startsWith("/") ? (
+                      <Link href={project.demoUrl} className={styles.projectLink}>
+                        View Project <ArrowIcon />
+                      </Link>
+                    ) : (
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.projectLink}
+                      >
+                        Live Demo <ArrowIcon />
+                      </a>
+                    )
+                  )}
+                  {project.downloadUrl && (
                     <a
-                      href={project.demoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={project.downloadUrl}
+                      download
                       className={styles.projectLink}
                     >
-                      Live Demo <ArrowIcon />
+                      Download <DownloadIcon />
                     </a>
                   )}
                 </div>
