@@ -70,14 +70,6 @@ export default function DesktopGoatPage() {
           >
             Download Standalone <DownloadIcon />
           </a>
-          <a
-            href="https://github.com/kirkbackus/desktop-goat"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondaryBtn}
-          >
-            Source Code <GithubIcon />
-          </a>
         </div>
       </header>
 
