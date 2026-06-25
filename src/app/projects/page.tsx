@@ -130,14 +130,14 @@ export default function ProjectsPage() {
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={styles.projectLink}
+                        className={`${styles.projectLink} ${styles.nestedLink}`}
                       >
                         Source Code <ArrowIcon />
                       </a>
                     )}
                     {project.demoUrl && (
                       project.demoUrl.startsWith("/") ? (
-                        <Link href={project.demoUrl} className={styles.projectLink}>
+                        <Link href={project.demoUrl} className={`${styles.projectLink} ${styles.cardLink}`}>
                           View Project <ArrowIcon />
                         </Link>
                       ) : (
@@ -145,7 +145,7 @@ export default function ProjectsPage() {
                           href={project.demoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={styles.projectLink}
+                          className={`${styles.projectLink} ${styles.cardLink}`}
                         >
                           Live Demo <ArrowIcon />
                         </a>
@@ -155,7 +155,7 @@ export default function ProjectsPage() {
                       <a
                         href={getAssetPath(project.downloadUrl)}
                         download
-                        className={styles.projectLink}
+                        className={`${styles.projectLink} ${styles.nestedLink}`}
                       >
                         Download <DownloadIcon />
                       </a>
