@@ -171,12 +171,25 @@ export default function PlaygroundUnlimitedPage() {
             <div className={styles.gallery}>
               <div className={styles.imageContainer}>
                 <img
+                  src={getAssetPath("/images/playground-unlimited/current-ui.png")}
+                  alt="Playground Unlimited Real-Time Running Application Screenshot"
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </div>
+              <p className={styles.caption} style={{ marginBottom: "24px" }}>
+                The completed C++ & Dear ImGui interface running real-time rigid-body and fluid physics simulation, featuring vector icons, responsive layout, and timing metrics.
+              </p>
+
+              <div className={styles.imageContainer}>
+                <img
                   src={getAssetPath("/images/playground-unlimited/ideal-ui.png")}
                   alt="Playground Unlimited Ideal Interface Design Mockup"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
-              <p className={styles.caption}>The redesigned interactive dashboard interface featuring dark themes, vector icons, collapsible sidebar, and live physics properties.</p>
+              <p className={styles.caption}>
+                The original visual mockup design used to reconstruct the UI styling, components placement, and dark-mode styling scheme.
+              </p>
             </div>
           </section>
         </div>
