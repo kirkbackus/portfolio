@@ -62,7 +62,7 @@ export default function VoiceKeyboardPage() {
           A system tray utility that enables hands-free dictation across all Windows applications. Combines offline neural speech-to-text with local LLM cleanup for zero-friction, grammatically polished writing.
         </p>
 
-        <div className={styles.btnGroup}>
+        <div className={styles.btnGroup} style={{ marginBottom: "32px" }}>
           <a
             href={getAssetPath("/downloads/voice-keyboard-win-x64.zip")}
             download
@@ -70,6 +70,15 @@ export default function VoiceKeyboardPage() {
           >
             Download Standalone & Installer <DownloadIcon />
           </a>
+        </div>
+
+        {/* Hero Screenshot */}
+        <div className={styles.imageContainer}>
+          <img
+            src={getAssetPath("/images/voice-keyboard/settings-ui.png")}
+            alt="Voice Keyboard Settings UI Screenshot"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
         </div>
       </header>
 
@@ -153,21 +162,6 @@ export default function VoiceKeyboardPage() {
                   Runs as a low-profile WinForms application context. Displays status notifications, provides quick access context menus, and provides a clean configuration interface.
                 </p>
               </div>
-            </div>
-          </section>
-
-          {/* Visual Showcase */}
-          <section className={styles.section} style={{ paddingTop: 0, paddingBottom: 0 }}>
-            <h2 className={styles.sectionTitle}>Visual Showcase</h2>
-            <div className={styles.gallery}>
-              <div className={styles.imageContainer}>
-                <img
-                  src={getAssetPath("/images/voice-keyboard/settings-ui.png")}
-                  alt="Voice Keyboard Settings UI Mockup"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-              <p className={styles.caption}>WinForms Settings Panel enabling hotkey customization, recording mode toggles (Push-to-Talk vs Toggle), and local Whisper and LLM model path setup.</p>
             </div>
           </section>
         </div>
