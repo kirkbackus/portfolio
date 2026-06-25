@@ -74,11 +74,15 @@ export default function DesktopGoatPage() {
         </div>
       </header>
 
-      {/* Featured Widescreen Showcase Image (Above the fold) */}
+      {/* Featured Widescreen Showcase Video (Above the fold) */}
       <div className={styles.heroImageContainer}>
-        <img
-          src={getAssetPath("/images/desktop-goat/showcase.png")}
-          alt="Desktop Goat Control Panel and Companion"
+        <video
+          src={getAssetPath("/videos/desktop-goat.mp4")}
+          autoPlay
+          loop
+          muted
+          playsInline
+          controls
           className={styles.heroImage}
         />
       </div>
