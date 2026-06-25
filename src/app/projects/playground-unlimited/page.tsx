@@ -71,14 +71,6 @@ export default function PlaygroundUnlimitedPage() {
           >
             Download Sandbox <DownloadIcon />
           </a>
-          <a
-            href="https://github.com/kirkbackus/playground-unlimited"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondaryBtn}
-          >
-            View GitHub Source <GithubIcon />
-          </a>
         </div>
       </header>
 
