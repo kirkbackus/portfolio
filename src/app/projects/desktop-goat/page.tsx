@@ -163,21 +163,12 @@ export default function DesktopGoatPage() {
             <div className={styles.gallery}>
               <div className={styles.imageContainer}>
                 <img
-                  src={getAssetPath("/images/desktop-goat/ideal-ui.png")}
-                  alt="Desktop Goat Ideal Interface Design Mockup"
+                  src={getAssetPath("/images/desktop-goat/showcase.png")}
+                  alt="Desktop Goat Control Panel and Companion"
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </div>
-              <p className={styles.caption}>Ideal visual layout with retro sprites, custom stats, and interactive control bars.</p>
-
-              <div className={styles.imageContainer}>
-                <img
-                  src={getAssetPath("/images/desktop-goat/farm_preferences_ui_mockup.png")}
-                  alt="Desktop Goat Preferences Settings UI Mockup"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-              <p className={styles.caption}>Rich customization options: select goat breed (horned/hornless, color variations), scale size, walk speed, toggle sound types, and view achievements progress.</p>
+              <p className={styles.caption}>The interactive Desktop Goat companion and settings control panel.</p>
             </div>
           </section>
         </div>

@@ -18,7 +18,7 @@ export const projects: Project[] = [
     tags: ["C#", "WPF", "Win32 API", "Desktop Application", "Physics"],
     demoUrl: "/projects/desktop-goat",
     downloadUrl: "/downloads/desktop-goat-win-x64.zip",
-    screenshotUrl: "/images/desktop-goat/ideal-ui.png",
+    screenshotUrl: "/images/desktop-goat/showcase.png",
     featured: true
   },
   {

@@ -102,54 +102,65 @@ export default function ProjectsPage() {
         <div className={styles.projectsGrid}>
           {filteredProjects.map((project) => (
             <article key={project.id} className={styles.projectCard}>
-              <div className={styles.projectHeader}>
-                <h2 className={styles.projectTitle}>{project.title}</h2>
-                <p className={styles.projectDescription}>{project.description}</p>
-              </div>
-              <div className={styles.projectFooter}>
-                <div className={styles.projectTags}>
-                  {project.tags.map((tag) => (
-                    <span key={tag} className={styles.tag}>
-                      {tag}
-                    </span>
-                  ))}
+              {project.screenshotUrl && (
+                <div className={styles.cardImageWrapper}>
+                  <img
+                    src={getAssetPath(project.screenshotUrl)}
+                    alt={`${project.title} screenshot`}
+                    className={styles.cardImage}
+                  />
                 </div>
-                <div className={styles.projectLinks}>
-                  {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.projectLink}
-                    >
-                      Source Code <ArrowIcon />
-                    </a>
-                  )}
-                  {project.demoUrl && (
-                    project.demoUrl.startsWith("/") ? (
-                      <Link href={project.demoUrl} className={styles.projectLink}>
-                        View Project <ArrowIcon />
-                      </Link>
-                    ) : (
+              )}
+              <div className={styles.cardBody}>
+                <div className={styles.projectHeader}>
+                  <h2 className={styles.projectTitle}>{project.title}</h2>
+                  <p className={styles.projectDescription}>{project.description}</p>
+                </div>
+                <div className={styles.projectFooter}>
+                  <div className={styles.projectTags}>
+                    {project.tags.map((tag) => (
+                      <span key={tag} className={styles.tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={styles.projectLinks}>
+                    {project.githubUrl && (
                       <a
-                        href={project.demoUrl}
+                        href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.projectLink}
                       >
-                        Live Demo <ArrowIcon />
+                        Source Code <ArrowIcon />
                       </a>
-                    )
-                  )}
-                  {project.downloadUrl && (
-                    <a
-                      href={getAssetPath(project.downloadUrl)}
-                      download
-                      className={styles.projectLink}
-                    >
-                      Download <DownloadIcon />
-                    </a>
-                  )}
+                    )}
+                    {project.demoUrl && (
+                      project.demoUrl.startsWith("/") ? (
+                        <Link href={project.demoUrl} className={styles.projectLink}>
+                          View Project <ArrowIcon />
+                        </Link>
+                      ) : (
+                        <a
+                          href={project.demoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.projectLink}
+                        >
+                          Live Demo <ArrowIcon />
+                        </a>
+                      )
+                    )}
+                    {project.downloadUrl && (
+                      <a
+                        href={getAssetPath(project.downloadUrl)}
+                        download
+                        className={styles.projectLink}
+                      >
+                        Download <DownloadIcon />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </article>
