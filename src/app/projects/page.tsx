@@ -71,17 +71,6 @@ export default function ProjectsPage() {
 
       {/* Search and Filters Controls */}
       <div className={styles.controlsRow}>
-        <div className={styles.searchWrapper}>
-          <SearchIcon />
-          <input
-            type="text"
-            placeholder="Search projects..."
-            className={styles.searchInput}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
         <div className={styles.filterList}>
           {filterTags.map((tag) => (
             <button
