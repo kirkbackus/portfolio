@@ -87,7 +87,7 @@ export default function Home() {
           <Link href="/projects/playground-unlimited" className={styles.flagshipCard}>
             <div className={styles.flagshipImageWrapper}>
               <img
-                src={getAssetPath("/images/playground-unlimited/ideal-ui.png")}
+                src={getAssetPath("/images/playground-unlimited/current-ui.png")}
                 alt="Playground Unlimited physics sandbox dashboard"
                 className={styles.flagshipImage}
               />

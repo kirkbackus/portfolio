@@ -38,7 +38,7 @@ export const projects: Project[] = [
     tags: ["C++", "OpenGL", "NVIDIA PhysX", "Dear ImGui", "Win32 API", "Physics Simulation"],
     demoUrl: "/projects/playground-unlimited",
     downloadUrl: "/downloads/playground-unlimited-win-x86.zip",
-    screenshotUrl: "/images/playground-unlimited/ideal-ui.png",
+    screenshotUrl: "/images/playground-unlimited/current-ui.png",
     featured: true
   }
 ];
