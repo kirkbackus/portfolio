@@ -27,5 +27,14 @@ export const projects: Project[] = [
     demoUrl: "/projects/voice-keyboard",
     downloadUrl: "/downloads/voice-keyboard-win-x64.zip",
     featured: true
+  },
+  {
+    id: "7",
+    title: "Playground Unlimited",
+    description: "A real-time 2D rigid-body and fluid physics sandbox simulator built in C++ and powered by the Microsoft NovodeX (NVIDIA PhysX) engine. Features joints, springs, water simulation, custom canvas rendering, and a state-of-the-art Dear ImGui overlay dashboard.",
+    tags: ["C++", "OpenGL", "NVIDIA PhysX", "Dear ImGui", "Win32 API", "Physics Simulation"],
+    demoUrl: "/projects/playground-unlimited",
+    downloadUrl: "/downloads/playground-unlimited-win-x86.zip",
+    featured: true
   }
 ];
