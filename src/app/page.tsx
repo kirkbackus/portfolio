@@ -20,32 +20,102 @@ const DownloadIcon = () => (
   </svg>
 );
 
-// Clean minimal SVG Github Icon
-const GithubIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "8px" }}>
-    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-  </svg>
-);
-
 export default function Home() {
   // Only display featured projects on the homepage
   const featuredProjects = projects.filter((project) => project.featured);
 
+  // List of text-based expertise items
+  const expertise = [
+    "Database Engineering",
+    "Distributed Systems",
+    "Rendering & OpenGL",
+    "Developer Tooling",
+    "Web Applications",
+    "Cloud Infrastructure"
+  ];
+
   return (
     <div className="container">
-      {/* Hero Section */}
+      {/* Two-Column Hero Section */}
       <section className={`${styles.hero} animate-fade-in`}>
-        <span className={styles.eyebrow}>Software Engineer</span>
-        <h1 className={styles.heroTitle}>
-          Designing software with precision, simplicity, and performance.
-        </h1>
-        <p className={styles.heroSubtitle}>
-          Hello, I&apos;m Kirk Backus. I build high-performance distributed systems, database engines, and modern web applications. Focused on developer tooling, clean code, and elegant architecture.
-        </p>
+        {/* Left Column - Copy & Call to Action */}
+        <div className={styles.heroLeft}>
+          <span className={styles.eyebrow}>Software Engineer</span>
+          <h1 className={styles.heroTitle}>
+            Engineering software where performance matters.
+          </h1>
+          <p className={styles.heroSubtitle}>
+            I build high-performance distributed systems, database engines, developer tooling, and modern web applications. Focused on clean architecture, maintainability, and long-term scalability.
+          </p>
+          
+          <div className={styles.btnGroup}>
+            <Link href="#work" className={styles.primaryBtn}>
+              View Projects
+            </Link>
+            <a
+              href="https://github.com/kirkbackus"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.secondaryBtn}
+            >
+              GitHub
+            </a>
+          </div>
+
+          {/* Metrics Row */}
+          <div className={styles.metricsRow}>
+            <div className={styles.metricItem}>
+              10+ Years Experience
+            </div>
+            <div className={styles.metricItem}>
+              <span className={styles.metricDot} />
+              Database Engineering
+            </div>
+            <div className={styles.metricItem}>
+              <span className={styles.metricDot} />
+              Distributed Systems
+            </div>
+            <div className={styles.metricItem}>
+              <span className={styles.metricDot} />
+              Open Source
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Flagship Project Showcase */}
+        <div className={styles.heroRight}>
+          <Link href="/projects/playground-unlimited" className={styles.flagshipCard}>
+            <div className={styles.flagshipImageWrapper}>
+              <img
+                src={getAssetPath("/images/playground-unlimited/ideal-ui.png")}
+                alt="Playground Unlimited physics sandbox dashboard"
+                className={styles.flagshipImage}
+              />
+            </div>
+            <div className={styles.flagshipInfo}>
+              <div className={styles.flagshipHeader}>
+                <span className={styles.flagshipTitle}>Playground Unlimited</span>
+                <span className={styles.flagshipLabel}>Flagship Project</span>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Expertise section */}
+      <section className={`${styles.expertiseSection} animate-fade-in delay-100`}>
+        <h2 className={styles.expertiseTitle}>Areas of Expertise</h2>
+        <div className={styles.expertisePills}>
+          {expertise.map((item) => (
+            <span key={item} className={styles.expertisePill}>
+              {item}
+            </span>
+          ))}
+        </div>
       </section>
 
       {/* Featured Projects Section */}
-      <section id="work" className="animate-fade-in delay-100">
+      <section id="work" className="animate-fade-in delay-200">
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Featured Work</h2>
           <p className={styles.sectionSubtitle}>A selection of engineering projects and open-source software.</p>
@@ -54,54 +124,64 @@ export default function Home() {
         <div className={styles.projectsGrid}>
           {featuredProjects.map((project) => (
             <article key={project.id} className={styles.projectCard}>
-              <div className={styles.projectHeader}>
+              {project.screenshotUrl && (
+                <div className={styles.cardImageWrapper}>
+                  <img
+                    src={getAssetPath(project.screenshotUrl)}
+                    alt={`${project.title} screenshot`}
+                    className={styles.cardImage}
+                  />
+                </div>
+              )}
+              <div className={styles.cardBody}>
                 <h3 className={styles.projectTitle}>{project.title}</h3>
                 <p className={styles.projectDescription}>{project.description}</p>
-              </div>
-              <div className={styles.projectFooter}>
-                <div className={styles.projectTags}>
-                  {project.tags.map((tag) => (
-                    <span key={tag} className={styles.tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className={styles.projectLinks}>
-                  {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.projectLink}
-                    >
-                      Source Code <ArrowIcon />
-                    </a>
-                  )}
-                  {project.demoUrl && (
-                    project.demoUrl.startsWith("/") ? (
-                      <Link href={project.demoUrl} className={styles.projectLink}>
-                        View Project <ArrowIcon />
-                      </Link>
-                    ) : (
+                
+                <div className={styles.projectFooter}>
+                  <div className={styles.projectTags}>
+                    {project.tags.map((tag) => (
+                      <span key={tag} className={styles.tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={styles.projectLinks}>
+                    {project.githubUrl && (
                       <a
-                        href={project.demoUrl}
+                        href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.projectLink}
                       >
-                        Live Demo <ArrowIcon />
+                        Source Code <ArrowIcon />
                       </a>
-                    )
-                  )}
-                  {project.downloadUrl && (
-                    <a
-                      href={getAssetPath(project.downloadUrl)}
-                      download
-                      className={styles.projectLink}
-                    >
-                      Download <DownloadIcon />
-                    </a>
-                  )}
+                    )}
+                    {project.demoUrl && (
+                      project.demoUrl.startsWith("/") ? (
+                        <Link href={project.demoUrl} className={styles.projectLink}>
+                          View Project <ArrowIcon />
+                        </Link>
+                      ) : (
+                        <a
+                          href={project.demoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.projectLink}
+                        >
+                          Live Demo <ArrowIcon />
+                        </a>
+                      )
+                    )}
+                    {project.downloadUrl && (
+                      <a
+                        href={getAssetPath(project.downloadUrl)}
+                        download
+                        className={styles.projectLink}
+                      >
+                        Download <DownloadIcon />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </article>
@@ -116,7 +196,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="animate-fade-in delay-200">
+      <section id="about" className="animate-fade-in delay-300">
         <div className={styles.aboutContent}>
           <div>
             <h2 className={styles.aboutTitle}>About</h2>
@@ -158,7 +238,7 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="animate-fade-in delay-300">
+      <section id="contact" className="animate-fade-in delay-400">
         <div className={styles.contactContent}>
           <h2 className={styles.contactTitle}>Get in Touch</h2>
           <p className={styles.contactDescription}>
@@ -177,7 +257,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className={`${styles.contactButton} ${styles.contactButtonSecondary}`}
             >
-              <GithubIcon /> GitHub
+              GitHub
             </a>
           </div>
         </div>

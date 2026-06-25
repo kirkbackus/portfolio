@@ -6,6 +6,7 @@ export interface Project {
   githubUrl?: string;
   demoUrl?: string;
   downloadUrl?: string;
+  screenshotUrl?: string;
   featured?: boolean;
 }
 
@@ -17,6 +18,7 @@ export const projects: Project[] = [
     tags: ["C#", "WPF", "Win32 API", "Desktop Application", "Physics"],
     demoUrl: "/projects/desktop-goat",
     downloadUrl: "/downloads/desktop-goat-win-x64.zip",
+    screenshotUrl: "/images/desktop-goat/ideal-ui.png",
     featured: true
   },
   {
@@ -26,6 +28,7 @@ export const projects: Project[] = [
     tags: ["C#", "WinForms", "Speech Recognition", "Whisper.NET", "Local LLM", "NAudio"],
     demoUrl: "/projects/voice-keyboard",
     downloadUrl: "/downloads/voice-keyboard-win-x64.zip",
+    screenshotUrl: "/images/voice-keyboard/main-ui.png",
     featured: true
   },
   {
@@ -35,6 +38,7 @@ export const projects: Project[] = [
     tags: ["C++", "OpenGL", "NVIDIA PhysX", "Dear ImGui", "Win32 API", "Physics Simulation"],
     demoUrl: "/projects/playground-unlimited",
     downloadUrl: "/downloads/playground-unlimited-win-x86.zip",
+    screenshotUrl: "/images/playground-unlimited/ideal-ui.png",
     featured: true
   }
 ];
