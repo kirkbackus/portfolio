@@ -63,7 +63,7 @@ export default function PlaygroundUnlimitedPage() {
           A real-time 2D rigid-body dynamics and fluid physics simulator. Built using C++, hardware-accelerated OpenGL graphics, and the legacy NVIDIA PhysX (NovodeX SDK) solver, with a state-of-the-art Dear ImGui overlay dashboard.
         </p>
 
-        <div className={styles.btnGroup}>
+        <div className={styles.btnGroup} style={{ marginBottom: "32px" }}>
           <a
             href={getAssetPath("/downloads/playground-unlimited-win-x86.zip")}
             download
@@ -71,6 +71,15 @@ export default function PlaygroundUnlimitedPage() {
           >
             Download Sandbox <DownloadIcon />
           </a>
+        </div>
+
+        {/* Hero Screenshot */}
+        <div className={styles.imageContainer}>
+          <img
+            src={getAssetPath("/images/playground-unlimited/current-ui.png")}
+            alt="Playground Unlimited Real-Time Running Application Screenshot"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
         </div>
       </header>
 
@@ -157,33 +166,6 @@ export default function PlaygroundUnlimitedPage() {
             </div>
           </section>
 
-          {/* Visual Showcase */}
-          <section className={styles.section} style={{ paddingTop: 0, paddingBottom: 0 }}>
-            <h2 className={styles.sectionTitle}>Visual Showcase</h2>
-            <div className={styles.gallery}>
-              <div className={styles.imageContainer}>
-                <img
-                  src={getAssetPath("/images/playground-unlimited/current-ui.png")}
-                  alt="Playground Unlimited Real-Time Running Application Screenshot"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-              <p className={styles.caption} style={{ marginBottom: "24px" }}>
-                The completed C++ & Dear ImGui interface running real-time rigid-body and fluid physics simulation, featuring vector icons, responsive layout, and timing metrics.
-              </p>
-
-              <div className={styles.imageContainer}>
-                <img
-                  src={getAssetPath("/images/playground-unlimited/ideal-ui.png")}
-                  alt="Playground Unlimited Ideal Interface Design Mockup"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-              <p className={styles.caption}>
-                The original visual mockup design used to reconstruct the UI styling, components placement, and dark-mode styling scheme.
-              </p>
-            </div>
-          </section>
         </div>
 
         {/* Sidebar Info */}
