@@ -162,15 +162,6 @@ export default function VoiceKeyboardPage() {
             <div className={styles.gallery}>
               <div className={styles.imageContainer}>
                 <img
-                  src={getAssetPath("/images/voice-keyboard/main-ui.png")}
-                  alt="Voice Keyboard Overlay Mockup"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-              <p className={styles.caption}>Sleek dictation overlay displaying current microphone audio level, listening state, and instant transcribed preview.</p>
-
-              <div className={styles.imageContainer}>
-                <img
                   src={getAssetPath("/images/voice-keyboard/settings-ui.png")}
                   alt="Voice Keyboard Settings UI Mockup"
                   style={{ width: "100%", height: "auto", display: "block" }}

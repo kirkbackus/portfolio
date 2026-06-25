@@ -28,7 +28,7 @@ export const projects: Project[] = [
     tags: ["C#", "WinForms", "Speech Recognition", "Whisper.NET", "Local LLM", "NAudio"],
     demoUrl: "/projects/voice-keyboard",
     downloadUrl: "/downloads/voice-keyboard-win-x64.zip",
-    screenshotUrl: "/images/voice-keyboard/main-ui.png",
+    screenshotUrl: "/images/voice-keyboard/settings-ui.png",
     featured: true
   },
   {
