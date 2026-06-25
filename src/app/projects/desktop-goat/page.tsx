@@ -74,6 +74,15 @@ export default function DesktopGoatPage() {
         </div>
       </header>
 
+      {/* Featured Widescreen Showcase Image (Above the fold) */}
+      <div className={styles.heroImageContainer}>
+        <img
+          src={getAssetPath("/images/desktop-goat/showcase.png")}
+          alt="Desktop Goat Control Panel and Companion"
+          className={styles.heroImage}
+        />
+      </div>
+
       {/* Content Layout */}
       <div className={styles.contentLayout}>
         <div className={styles.mainColumn}>
@@ -154,21 +163,6 @@ export default function DesktopGoatPage() {
                   Instead of shipping heavy audio files, the app programmatically synthesizes retro sound effects (bleats, clacks, snoring) by writing raw sine/square wave data directly to the Windows sound buffers at runtime.
                 </p>
               </div>
-            </div>
-          </section>
-
-          {/* Visual Showcase */}
-          <section className={styles.section} style={{ paddingTop: 0, paddingBottom: 0 }}>
-            <h2 className={styles.sectionTitle}>Visual Showcase</h2>
-            <div className={styles.gallery}>
-              <div className={styles.imageContainer}>
-                <img
-                  src={getAssetPath("/images/desktop-goat/showcase.png")}
-                  alt="Desktop Goat Control Panel and Companion"
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-              <p className={styles.caption}>The interactive Desktop Goat companion and settings control panel.</p>
             </div>
           </section>
         </div>
