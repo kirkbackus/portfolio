@@ -70,14 +70,6 @@ export default function DesktopOrganizerPage() {
           >
             Download Standalone App <DownloadIcon />
           </a>
-          <a
-            href="https://github.com/kirkbackus/desktop-organizer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondaryBtn}
-          >
-            View GitHub Repository <GithubIcon />
-          </a>
         </div>
 
         {/* Hero Screenshot */}

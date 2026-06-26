@@ -47,7 +47,6 @@ export const projects: Project[] = [
     description: "An intelligent C# Windows Forms utility to organize desktop icons and clean up filesystem clutter. It uses Windows registry logs (UserAssist) and Recent Documents history to track actual shortcut usage, scales dynamically with multi-monitor visual previews, and offers safe, reversible layout backups.",
     tags: ["C#", "WinForms", "Win32 API", "COM Interop", "Activity Heuristic", "SaaS UI"],
     demoUrl: "/projects/desktop-organizer",
-    githubUrl: "https://github.com/kirkbackus/desktop-organizer",
     downloadUrl: "/downloads/desktop-organizer-win-x64.zip",
     screenshotUrl: "/images/desktop-organizer/showcase.png",
     featured: true
