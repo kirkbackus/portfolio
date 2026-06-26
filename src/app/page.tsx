@@ -72,15 +72,15 @@ export default function Home() {
             </div>
             <div className={styles.metricItem}>
               <span className={styles.metricDot} />
-              Database Engineering
+              Enterprise Java & Spring
             </div>
             <div className={styles.metricItem}>
               <span className={styles.metricDot} />
-              Distributed Systems
+              Full-Stack Development
             </div>
             <div className={styles.metricItem}>
               <span className={styles.metricDot} />
-              Open Source
+              AWS & Databases
             </div>
           </div>
         </div>
