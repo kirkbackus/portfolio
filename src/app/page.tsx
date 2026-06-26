@@ -217,22 +217,22 @@ export default function Home() {
               <h3 className={styles.skillsTitle}>Technologies & Skills</h3>
               <div className={styles.skillsGrid}>
                 <div className={styles.skillItem}>
-                  <span className={styles.skillDot} /> Go / Rust / C++
+                  <span className={styles.skillDot} /> Java / Spring MVC
                 </div>
                 <div className={styles.skillItem}>
                   <span className={styles.skillDot} /> TypeScript / React / Next.js
                 </div>
                 <div className={styles.skillItem}>
-                  <span className={styles.skillDot} /> SQL / NoSQL / Storage Engines
+                  <span className={styles.skillDot} /> C# / .NET / Win32 API
                 </div>
                 <div className={styles.skillItem}>
-                  <span className={styles.skillDot} /> AWS / Terraform / Docker
+                  <span className={styles.skillDot} /> MySQL / PostgreSQL / SQL
                 </div>
                 <div className={styles.skillItem}>
-                  <span className={styles.skillDot} /> Distributed Systems / gRPC
+                  <span className={styles.skillDot} /> AWS (Cloud Services)
                 </div>
                 <div className={styles.skillItem}>
-                  <span className={styles.skillDot} /> REST APIs / WebSockets
+                  <span className={styles.skillDot} /> Distributed Systems / REST APIs
                 </div>
               </div>
             </div>
