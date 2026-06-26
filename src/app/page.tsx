@@ -45,7 +45,7 @@ export default function Home() {
         <div className={styles.heroLeft}>
           <span className={styles.eyebrow}>Software Engineer</span>
           <h1 className={styles.heroTitle}>
-            Engineering software where performance matters.
+            Engineering software. For production and for play.
           </h1>
           <p className={styles.heroSubtitle}>
             I build high-performance distributed systems, database engines, developer tooling, and modern web applications. Focused on clean architecture, maintainability, and long-term scalability.
