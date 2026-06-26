@@ -1,0 +1,343 @@
+.pageContainer {
+  padding-top: 60px;
+  padding-bottom: 100px;
+  min-height: 80vh;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.backLink:hover {
+  color: var(--foreground);
+  transform: translateX(-2px);
+  opacity: 1;
+}
+
+.hero {
+  margin-bottom: 60px;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tag {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  padding: 4px 12px;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--foreground);
+  border-radius: 100px;
+}
+
+:global(.dark) .tag {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.title {
+  font-size: 48px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 720px;
+  margin-bottom: 32px;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--foreground);
+  color: var(--background);
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.primaryBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--card-background);
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.secondaryBtn:hover {
+  background-color: var(--border);
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+/* Grid Layout */
+.contentLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+  margin-top: 48px;
+}
+
+@media (max-width: 768px) {
+  .contentLayout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .title {
+    font-size: 36px;
+  }
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+/* Features Grid */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 600px) {
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.featureCard {
+  background-color: var(--card-background);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.featureIcon {
+  font-size: 28px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.featureTitle {
+  font-size: 17px;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 8px;
+}
+
+.featureDesc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Technical Details */
+.techGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 600px) {
+  .techGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.techCard {
+  background-color: var(--card-background);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.techCardTitle {
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.techCardContent {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Gallery Section */
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background-color: var(--card-background);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.imageContainer:hover {
+  transform: scale(1.01);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+.caption {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Sidebar Info Cards */
+.infoCard {
+  background-color: var(--card-background);
+  border: 1px solid var(--border);
+  padding: 28px;
+  border-radius: 20px;
+}
+
+.infoTitle {
+  font-size: 18px;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 20px;
+}
+
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.specRow:last-child {
+  border-bottom: none;
+}
+
+.specLabel {
+  color: var(--text-secondary);
+}
+
+.specValue {
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+/* Achievements List */
+.achievementList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievementItem {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.achievementEmoji {
+  font-size: 20px;
+  background-color: rgba(0, 0, 0, 0.04);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+:global(.dark) .achievementEmoji {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.achievementDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.achievementTitle {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.achievementDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
