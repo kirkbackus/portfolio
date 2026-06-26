@@ -48,7 +48,7 @@ export default function Home() {
             Engineering software. For production and for play.
           </h1>
           <p className={styles.heroSubtitle}>
-            I build high-performance distributed systems, database engines, developer tooling, and modern web applications. Focused on clean architecture, maintainability, and long-term scalability.
+            I design and build enterprise-grade software for production, alongside creative tools and interactive sandbox companions for play. Dedicated to writing clean, high-performance code across Java, C#, TypeScript, and AWS.
           </p>
           
           <div className={styles.btnGroup}>
