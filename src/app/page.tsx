@@ -29,12 +29,12 @@ export default function Home() {
 
   // List of text-based expertise items
   const expertise = [
-    "Database Engineering",
-    "Distributed Systems",
-    "Rendering & OpenGL",
-    "Developer Tooling",
-    "Web Applications",
-    "Cloud Infrastructure"
+    "Enterprise Web Applications",
+    "RESTful API Design",
+    "Desktop Applications (C#/.NET)",
+    "Relational Databases (MySQL)",
+    "Cloud Infrastructure (AWS)",
+    "System Architecture"
   ];
 
   return (
