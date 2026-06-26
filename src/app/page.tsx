@@ -24,6 +24,9 @@ export default function Home() {
   // Only display featured projects on the homepage
   const featuredProjects = projects.filter((project) => project.featured);
 
+  const startYear = 2004;
+  const yearsOfExperience = new Date().getFullYear() - startYear;
+
   // List of text-based expertise items
   const expertise = [
     "Database Engineering",
@@ -65,7 +68,7 @@ export default function Home() {
           {/* Metrics Row */}
           <div className={styles.metricsRow}>
             <div className={styles.metricItem}>
-              10+ Years Experience
+              {yearsOfExperience}+ Years Experience
             </div>
             <div className={styles.metricItem}>
               <span className={styles.metricDot} />
