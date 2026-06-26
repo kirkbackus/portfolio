@@ -79,6 +79,15 @@ export default function DesktopOrganizerPage() {
             View GitHub Repository <GithubIcon />
           </a>
         </div>
+
+        {/* Hero Screenshot */}
+        <div className={styles.imageContainer}>
+          <img
+            src={getAssetPath("/images/desktop-organizer/showcase.png")}
+            alt="Smart Desktop Organizer UI Screenshot"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
+        </div>
       </header>
 
       {/* Content Layout */}
