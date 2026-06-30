@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { useState, useRef, useEffect } from "react";
 import styles from "./pong-soccer.module.css";
 import Link from "next/link";
 import { getAssetPath } from "@/utils/paths";
@@ -27,8 +29,17 @@ const FullscreenIcon = () => (
   </svg>
 );
 
+// Clean minimal SVG Exit Fullscreen Icon
+const ExitFullscreenIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4" />
+  </svg>
+);
+
 export default function PongSoccerPage() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
   const tags = ["JavaScript", "Three.js", "WebGL", "Web Audio API", "Game Development"];
@@ -40,10 +51,88 @@ export default function PongSoccerPage() {
     { emoji: "🏆", title: "Goal Scored", desc: "Slam the ball past the opponent's goalie and into the net to score." }
   ];
 
-  const handleFullscreen = () => {
-    if (containerRef.current) {
-      if (containerRef.current.requestFullscreen) {
-        containerRef.current.requestFullscreen();
+  // Sync native fullscreen state changes (e.g. exit via Escape key or browser UI)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const doc = document as any;
+      const isCurrentlyFullscreen = !!(
+        doc.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullscreenElement ||
+        doc.msFullscreenElement
+      );
+      setIsFullscreen(isCurrentlyFullscreen);
+      if (!isCurrentlyFullscreen) {
+        setIsPseudoFullscreen(false);
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+    };
+  }, []);
+
+  // Sync Escape key for pseudo-fullscreen mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isPseudoFullscreen) {
+        setIsPseudoFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPseudoFullscreen]);
+
+  const toggleFullscreen = () => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (isPseudoFullscreen) {
+      setIsPseudoFullscreen(false);
+      return;
+    }
+
+    const doc = document as any;
+    const isCurrentlyFullscreen = !!(
+      doc.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullscreenElement ||
+      doc.msFullscreenElement
+    );
+
+    if (isCurrentlyFullscreen) {
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen();
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen();
+      } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen();
+      } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen();
+      }
+    } else {
+      const req =
+        container.requestFullscreen ||
+        (container as any).webkitRequestFullscreen ||
+        (container as any).mozRequestFullScreen ||
+        (container as any).msRequestFullscreen;
+
+      if (req) {
+        req.call(container).catch(() => {
+          // Fallback to CSS pseudo-fullscreen on failure
+          setIsPseudoFullscreen(true);
+        });
+      } else {
+        // Fallback to CSS pseudo-fullscreen if API unsupported (e.g., iOS Safari)
+        setIsPseudoFullscreen(true);
       }
     }
   };
@@ -85,7 +174,7 @@ export default function PongSoccerPage() {
 
       {/* Playable Game Cabinet (Arcade) */}
       <section id="play" className={styles.gameSection}>
-        <div className={styles.gameWrapper} ref={containerRef}>
+        <div className={`${styles.gameWrapper} ${isPseudoFullscreen ? styles.pseudoFullscreen : ""}`} ref={containerRef}>
           <div className={styles.gameArcade}>
             {!isPlaying ? (
               <div 
@@ -129,8 +218,16 @@ export default function PongSoccerPage() {
             </div>
             
             {isPlaying && (
-              <button className={styles.fullScreenBtn} onClick={handleFullscreen}>
-                Fullscreen <FullscreenIcon />
+              <button className={styles.fullScreenBtn} onClick={toggleFullscreen}>
+                {isFullscreen || isPseudoFullscreen ? (
+                  <>
+                    Exit Fullscreen <ExitFullscreenIcon />
+                  </>
+                ) : (
+                  <>
+                    Fullscreen <FullscreenIcon />
+                  </>
+                )}
               </button>
             )}
           </div>
