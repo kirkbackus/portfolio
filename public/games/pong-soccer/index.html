@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Soccer Arena - A retro N64-style 3D Pong soccer minigame featuring dynamic Web Audio, local controls, and predictive AI.">
+    <title>Soccer Arena (N64 Style)</title>
+    <!-- Google Font for Retro Style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <!-- Include Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- WebGL Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay Wrapper -->
+    <div id="ui-container">
+        
+        <!-- Mute/Sound Controls -->
+        <button id="sound-toggle" class="retro-btn sound-btn" title="Toggle Sound">
+            <span class="icon">🔊</span>
+        </button>
+
+        <!-- 1. Title / Main Menu Screen -->
+        <div id="title-screen" class="screen active">
+            <div class="menu-box">
+                <h1 class="game-title">SOCCER<br><span class="highlight">ARENA</span></h1>
+                <p class="subtitle">Inspired by Pong: The Next Level</p>
+                
+                <div class="menu-section">
+                    <h3>SELECT MODE</h3>
+                    <div class="mode-selector">
+                        <button class="retro-btn mode-btn active" data-mode="1p">1 PLAYER</button>
+                        <button class="retro-btn mode-btn" data-mode="2p">2 PLAYERS</button>
+                    </div>
+                </div>
+
+                <div id="difficulty-section" class="menu-section">
+                    <h3>SELECT DIFFICULTY</h3>
+                    <div class="difficulty-selector">
+                        <button class="retro-btn diff-btn" data-diff="easy">EASY</button>
+                        <button class="retro-btn diff-btn active" data-diff="medium">MEDIUM</button>
+                        <button class="retro-btn diff-btn" data-diff="hard">HARD</button>
+                    </div>
+                </div>
+
+                <button id="start-btn" class="retro-btn primary-btn pulse">START KICKOFF</button>
+
+                <div class="controls-guide">
+                    <h3>CONTROLS</h3>
+                    <div id="controls-1p" class="controls-grid">
+                        <div class="control-row">
+                            <span class="key">W</span> <span class="key">S</span>
+                            <span class="label">Move Team (Red)</span>
+                        </div>
+                        <div class="control-row">
+                            <span class="label" style="color: #007aff;">Blue Team controlled by AI</span>
+                        </div>
+                    </div>
+                    <div id="controls-2p" class="controls-grid" style="display: none;">
+                        <div class="control-row">
+                            <span class="key">W</span> <span class="key">S</span>
+                            <span class="label">Player 1: Red Team</span>
+                        </div>
+                        <div class="control-row">
+                            <span class="key">↑</span> <span class="key">↓</span>
+                            <span class="label">Player 2: Blue Team</span>
+                        </div>
+                    </div>
+                    <p class="gamepad-hint">🎮 Gamepads: Left stick controls entire team</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Active Game HUD -->
+        <div id="hud" class="hud-overlay">
+            <!-- Scoreboard -->
+            <div class="scoreboard">
+                <div class="score-card red-team">
+                    <div class="team-label">RED</div>
+                    <div id="score-red" class="score-val">0</div>
+                </div>
+                <div class="center-hud">
+                    <div id="game-status" class="status-msg">GET READY!</div>
+                    <div id="countdown" class="countdown-val"></div>
+                </div>
+                <div class="score-card blue-team">
+                    <div class="team-label">BLUE</div>
+                    <div id="score-blue" class="score-val">0</div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">SPEED:</span>
+                    <span id="ball-speed" class="stat-val">0 km/h</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">RALLY:</span>
+                    <span id="rally-count" class="stat-val">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Victory Screen -->
+        <div id="victory-screen" class="screen">
+            <div class="menu-box victory-box">
+                <h1 id="victory-title" class="victory-title">RED WINS!</h1>
+                <p class="victory-subtitle">Sensational Match!</p>
+                
+                <div class="match-stats">
+                    <div class="stat-row">
+                        <span>Rally Record:</span>
+                        <span id="max-rally">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Max Speed:</span>
+                        <span id="max-speed">0 km/h</span>
+                    </div>
+                </div>
+
+                <button id="rematch-btn" class="retro-btn primary-btn">PLAY AGAIN</button>
+                <button id="menu-btn" class="retro-btn secondary-btn">MAIN MENU</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="audio.js"></script>
+    <script src="controls.js"></script>
+    <script src="ai.js"></script>
+    <script src="renderer.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

@@ -50,5 +50,14 @@ export const projects: Project[] = [
     downloadUrl: "/downloads/desktop-organizer-win-x64.zip",
     screenshotUrl: "/images/desktop-organizer/showcase.png",
     featured: true
+  },
+  {
+    id: "9",
+    title: "Soccer Arena",
+    description: "A retro N64-style 3D Pong-soccer hybrid game built with Three.js. Features a predictive AI goalie, retro waveform sound synthesis via Web Audio API, dynamic physics, and local multiplayer support.",
+    tags: ["JavaScript", "Three.js", "WebGL", "Web Audio API", "Game Development"],
+    demoUrl: "/projects/pong-soccer",
+    screenshotUrl: "/images/pong-soccer/showcase.png",
+    featured: true
   }
 ];
