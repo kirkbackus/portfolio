@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkiFree 3D - Low-Poly Alpine Adventure</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for clean icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Game Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay Layer -->
+    <div id="ui-overlay">
+        <!-- Start Menu Screen -->
+        <div id="menu-screen" class="overlay-card active">
+            <div class="logo-container">
+                <div class="logo-icon"><i class="fa-solid fa-person-skiing"></i></div>
+                <h1>SKI<span>FREE</span> <small>3D</small></h1>
+            </div>
+            
+            <p class="subtitle">A retro-modern alpine survival adventure.</p>
+
+            <div class="card-content">
+                <div class="controls-guide">
+                    <h3><i class="fa-solid fa-gamepad"></i> How to Ski</h3>
+                    <div class="control-row">
+                        <span class="key"><i class="fa-solid fa-mouse"></i> Move Mouse</span>
+                        <span class="action">Steer Left / Right (reversed steering)</span>
+                    </div>
+                    <div class="control-row">
+                        <span class="key"><i class="fa-solid fa-hand-pointer"></i> Left-Click</span>
+                        <span class="action">Jump over obstacles & perform tricks</span>
+                    </div>
+                    <div class="control-row">
+                        <span class="key"><i class="fa-solid fa-mobile-screen-button"></i> Mobile Touch</span>
+                        <span class="action">Drag to steer / Tap screen to jump</span>
+                    </div>
+                    <div class="control-row">
+                        <span class="key"><i class="fa-solid fa-gauge"></i> Speed</span>
+                        <span class="action">Builds up automatically (Turn sharply to brake!)</span>
+                    </div>
+                </div>
+
+                <div class="game-info">
+                    <h3><i class="fa-solid fa-circle-info"></i> The Mission</h3>
+                    <p>Ski down the infinite slope! Avoid trees, rocks, and gates. Catch big air off ramps for style points. Watch out for the **Abominable Snowman** who chases you after 2,000 meters!</p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="start-btn" class="btn primary-btn"><i class="fa-solid fa-play"></i> Start Skiing</button>
+                <button id="audio-toggle-menu" class="btn secondary-btn"><i class="fa-solid fa-volume-high"></i> Audio On</button>
+            </div>
+
+            <div class="high-scores-container">
+                <div class="high-score-card">
+                    <span class="score-icon"><i class="fa-solid fa-trophy"></i></span>
+                    <span class="score-label">BEST DISTANCE</span>
+                    <span class="score-value" id="pb-distance">0 m</span>
+                </div>
+                <div class="high-score-card">
+                    <span class="score-icon"><i class="fa-solid fa-crown"></i></span>
+                    <span class="score-label">BEST STYLE</span>
+                    <span class="score-value" id="pb-style">0 pts</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- HUD (Heads-Up Display) -->
+        <div id="hud" class="hidden">
+            <div class="hud-item distance">
+                <span class="label">Distance</span>
+                <span class="value" id="hud-distance">0<small>m</small></span>
+            </div>
+            <div class="hud-item speed">
+                <span class="label">Speed</span>
+                <span class="value" id="hud-speed">0<small>km/h</small></span>
+            </div>
+            <div class="hud-item style-score">
+                <span class="label">Style</span>
+                <span class="value" id="hud-style">0</span>
+            </div>
+            <div class="hud-item slalom">
+                <span class="label">Gates</span>
+                <span class="value" id="hud-gates">0</span>
+            </div>
+            <div class="hud-controls">
+                <button id="hud-mute-btn" class="hud-btn"><i class="fa-solid fa-volume-high"></i></button>
+                <button id="hud-restart-btn" class="hud-btn"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+        </div>
+
+        <!-- Slalom Combo Banner (for passing gates) -->
+        <div id="slalom-banner" class="hidden">
+            <span id="slalom-text">GATE PASSED!</span>
+        </div>
+
+        <!-- Wii Sports New Record Flash -->
+        <div id="record-banner" class="hidden">
+            <div class="record-banner-skew">
+                <span id="record-banner-text" class="record-banner-text">NEW RECORD!</span>
+            </div>
+        </div>
+
+        <!-- Warning Flash (Yeti Alert) -->
+        <div id="yeti-warning" class="hidden">
+            <i class="fa-solid fa-triangle-exclamation"></i> YETI INBOUND! <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <!-- Game Over / Eaten Screen -->
+        <div id="game-over-screen" class="overlay-card hidden">
+            <div class="logo-container">
+                <h1 id="game-over-title">CRASHED!</h1>
+            </div>
+            
+            <p id="game-over-subtitle" class="subtitle">Watch out for that pine tree!</p>
+
+            <div class="stats-grid">
+                <div class="stat-box relative">
+                    <span class="stat-label">Distance</span>
+                    <span class="stat-val" id="go-distance">0m</span>
+                    <div id="go-dist-record-badge" class="record-stamp hidden">NEW RECORD</div>
+                </div>
+                <div class="stat-box relative">
+                    <span class="stat-label">Style Points</span>
+                    <span class="stat-val" id="go-style">0</span>
+                    <div id="go-style-record-badge" class="record-stamp hidden">NEW RECORD</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Gates Passed</span>
+                    <span class="stat-val" id="go-gates">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Total Score</span>
+                    <span class="stat-valHighlight" id="go-total">0</span>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="restart-btn" class="btn primary-btn"><i class="fa-solid fa-rotate-left"></i> Ski Again</button>
+                <button id="menu-btn" class="btn secondary-btn"><i class="fa-solid fa-house"></i> Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="js/sound.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

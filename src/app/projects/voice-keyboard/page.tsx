@@ -132,7 +132,7 @@ export default function VoiceKeyboardPage() {
                   <span>🔊</span> NAudio Capture
                 </h3>
                 <p className={styles.techCardContent}>
-                  Captures microphone input using the Windows MMDevice API, streaming raw audio into 16kHz, mono 16-bit PCM WAV formats matching Whisper's expected specifications.
+                  Captures microphone input using the Windows MMDevice API, streaming raw audio into 16kHz, mono 16-bit PCM WAV formats matching Whisper&apos;s expected specifications.
                 </p>
               </div>
 

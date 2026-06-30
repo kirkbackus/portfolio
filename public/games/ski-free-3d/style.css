@@ -1,0 +1,746 @@
+:root {
+    --bg-dark: #070913;
+    --card-bg: rgba(13, 17, 33, 0.65);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-cyan: #00f0ff;
+    --accent-pink: #ff007f;
+    --accent-gold: #fbbf24;
+    --success-green: #10b981;
+    --danger-red: #ef4444;
+    --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.5);
+    --glow-cyan: 0 0 15px rgba(0, 240, 255, 0.35);
+    --glow-pink: 0 0 15px rgba(255, 0, 127, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: var(--font-family);
+    color: var(--text-primary);
+}
+
+/* Canvas Container */
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* UI Overlay Screen */
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none; /* Let clicks pass through to canvas except UI elements */
+}
+
+/* Common Overlay Card (Glassmorphism) */
+.overlay-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--border-glass);
+    border-radius: 24px;
+    padding: 40px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: var(--shadow-premium);
+    pointer-events: auto; /* Re-enable pointer events for interactions */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    pointer-events: none;
+    position: absolute;
+}
+
+.overlay-card.active {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+    z-index: 20;
+}
+
+.overlay-card.hidden {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Logo Styles */
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.logo-icon {
+    font-size: 3rem;
+    color: var(--accent-cyan);
+    text-shadow: var(--glow-cyan);
+    margin-bottom: 10px;
+    animation: float 3s ease-in-out infinite;
+}
+
+h1 {
+    font-weight: 800;
+    font-size: 2.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+}
+
+h1 span {
+    color: var(--accent-cyan);
+    text-shadow: var(--glow-cyan);
+}
+
+h1 small {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--accent-pink);
+    border: 1px solid var(--accent-pink);
+    padding: 2px 8px;
+    border-radius: 6px;
+    vertical-align: middle;
+    margin-left: 5px;
+    box-shadow: var(--glow-pink);
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 300;
+}
+
+/* Card Content Grid */
+.card-content {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 24px;
+    width: 100%;
+    margin-bottom: 35px;
+}
+
+@media (max-width: 600px) {
+    .card-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.controls-guide, .game-info {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent-cyan);
+}
+
+.controls-guide h3 {
+    color: var(--accent-cyan);
+}
+
+.game-info h3 {
+    color: var(--accent-pink);
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.key {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: monospace;
+    font-weight: bold;
+    min-width: 45px;
+    text-align: center;
+    margin-right: 12px;
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.action {
+    color: var(--text-secondary);
+}
+
+.game-info p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.game-info p strong {
+    color: var(--accent-pink);
+    text-shadow: var(--glow-pink);
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.btn {
+    font-family: var(--font-family);
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 14px 28px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s ease;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--accent-cyan), #00bfff);
+    color: #040814;
+    box-shadow: var(--glow-cyan);
+    font-weight: 800;
+}
+
+.primary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+}
+
+.primary-btn:active {
+    transform: translateY(-1px);
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.high-score-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* HUD Overlay Styling */
+#hud {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 800px;
+    background: rgba(13, 17, 33, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: auto;
+    z-index: 15;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: all 0.4s ease;
+    opacity: 1;
+}
+
+#hud.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-30px);
+    pointer-events: none;
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.hud-item:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-item .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+
+.hud-item .value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: baseline;
+}
+
+.hud-item .value small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-left: 2px;
+}
+
+.hud-item.distance .value {
+    color: var(--accent-cyan);
+    text-shadow: var(--glow-cyan);
+}
+
+.hud-item.style-score .value {
+    color: var(--accent-gold);
+}
+
+.hud-item.slalom .value {
+    color: var(--success-green);
+}
+
+.hud-controls {
+    display: flex;
+    gap: 8px;
+    padding-left: 15px;
+}
+
+.hud-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.hud-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+/* Slalom combo banner */
+#slalom-banner {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0), rgba(16, 185, 129, 0.85), rgba(16, 185, 129, 0));
+    color: #fff;
+    padding: 10px 40px;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    border-radius: 4px;
+    text-align: center;
+    z-index: 12;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#slalom-banner.active {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    animation: bannerPulse 1.2s ease forwards;
+}
+
+/* Warning Flash (Yeti Alert) */
+#yeti-warning {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(239, 68, 68, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    z-index: 12;
+    pointer-events: none;
+    animation: flash 1s infinite alternate, slideUpIn 0.5s ease-out;
+}
+
+#yeti-warning.hidden {
+    display: none !important;
+}
+
+
+/* Game Over Stats */
+#game-over-screen {
+    max-width: 500px;
+}
+
+#game-over-title {
+    color: var(--danger-red);
+    text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    font-size: 3rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.stat-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-valHighlight {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent-cyan);
+    text-shadow: var(--glow-cyan);
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes flash {
+    0% { opacity: 0.6; transform: translateX(-50%) scale(0.95); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+}
+
+@keyframes slideUpIn {
+    0% { opacity: 0; transform: translate(-50%, 40px); }
+    100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes bannerPulse {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.7); }
+    15% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+    25% { transform: translateX(-50%) scale(1); }
+    75% { opacity: 1; transform: translateX(-50%) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) scale(0.95); }
+}
+
+/* Wii Sports style Records */
+.high-scores-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.high-score-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.high-score-card:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.high-score-card .score-icon {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+.high-score-card:nth-child(1) .score-icon {
+    color: var(--accent-cyan);
+    text-shadow: var(--glow-cyan);
+}
+
+.high-score-card:nth-child(2) .score-icon {
+    color: #f59e0b; /* Amber */
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.high-score-card .score-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.high-score-card .score-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+#record-banner {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    pointer-events: none;
+    animation: recordSlideIn 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+#record-banner.hidden {
+    display: none !important;
+}
+
+.record-banner-skew {
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); /* Wii Sports Red-Orange */
+    padding: 14px 45px;
+    border: 4px solid #ffffff;
+    border-radius: 8px;
+    transform: skewX(-15deg);
+    box-shadow: 0 8px 0 #000000; /* Solid retro block shadow */
+}
+
+.record-banner-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #ffd700; /* Yellow Gold */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+    display: inline-block;
+    transform: skewX(15deg); /* Unskew text */
+}
+
+.relative {
+    position: relative;
+}
+
+.record-stamp {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 4px 0 #000000;
+    transform: rotate(-10deg);
+    animation: stampSlam 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.record-stamp.hidden {
+    display: none !important;
+}
+
+@keyframes recordSlideIn {
+    0% { opacity: 0; transform: translate(-50%, -100px) scale(0.6); }
+    15% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+    22% { transform: translate(-50%, 0) scale(1); }
+    85% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -80px) scale(0.8); }
+}
+
+@keyframes stampSlam {
+    0% { opacity: 0; transform: rotate(-30deg) scale(3.5) translate(30px, -30px); filter: blur(4px); }
+    100% { opacity: 1; transform: rotate(-10deg) scale(1) translate(0, 0); filter: blur(0); }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 480px) {
+    #hud {
+        padding: 8px 12px;
+        top: 12px;
+    }
+    
+    .hud-item .label {
+        font-size: 0.65rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .hud-item .value {
+        font-size: 1.1rem;
+    }
+    
+    .hud-item .value small {
+        font-size: 0.65rem;
+    }
+    
+    .hud-controls {
+        padding-left: 8px;
+    }
+    
+    .hud-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+    }
+    
+    .overlay-card {
+        padding: 24px 16px;
+        border-radius: 16px;
+        width: 95%;
+    }
+    
+    h1 {
+        font-size: 1.9rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+    
+    .stats-grid {
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-box {
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    .stat-val {
+        font-size: 1.1rem;
+    }
+    
+    .stat-valHighlight {
+        font-size: 1.3rem;
+    }
+    
+    .high-scores-container {
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .high-score-card {
+        padding: 8px;
+    }
+    
+    .high-score-card .score-icon {
+        font-size: 1rem;
+    }
+    
+    .high-score-card .score-value {
+        font-size: 0.95rem;
+    }
+    
+    .record-banner-skew {
+        padding: 8px 24px;
+        border-width: 3px;
+        box-shadow: 0 5px 0 #000000;
+    }
+    
+    .record-banner-text {
+        font-size: 1.4rem;
+    }
+}
+

@@ -59,5 +59,14 @@ export const projects: Project[] = [
     demoUrl: "/projects/pong-soccer",
     screenshotUrl: "/images/pong-soccer/showcase.png",
     featured: true
+  },
+  {
+    id: "10",
+    title: "SkiFree 3D",
+    description: "A retro-modern low-poly 3D alpine survival game inspired by the classic Windows SkiFree. Features procedural slope generation, obstacle collision physics, style point scoring via mid-air tricks, sound synthesis, and an Abominable Snowman chase system.",
+    tags: ["JavaScript", "Three.js", "WebGL", "Web Audio API", "Game Development", "Procedural Generation"],
+    demoUrl: "/projects/ski-free-3d",
+    screenshotUrl: "/images/ski-free-3d/showcase.png",
+    featured: true
   }
 ];

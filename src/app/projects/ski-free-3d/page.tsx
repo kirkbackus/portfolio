@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import styles from "./pong-soccer.module.css";
+import styles from "./ski-free-3d.module.css";
 import Link from "next/link";
 import { getAssetPath } from "@/utils/paths";
-
-// Clean minimal SVG Arrow Icon
-const ArrowIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2.08333 1.5H10.5V9.91667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M10.5 1.5L1.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
 
 // Clean minimal SVG Play Icon
 const PlayIcon = () => (
@@ -27,17 +19,17 @@ const FullscreenIcon = () => (
   </svg>
 );
 
-export default function PongSoccerPage() {
+export default function SkiFree3DPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const tags = ["JavaScript", "Three.js", "WebGL", "Web Audio API", "Game Development"];
+  const tags = ["JavaScript", "Three.js", "WebGL", "Web Audio API", "Game Development", "Procedural Generation"];
   
   const gameplaySteps = [
-    { emoji: "🔴", title: "Red Team Player", desc: "Use W and S keys to slide your defenders up and down to block the ball." },
-    { emoji: "🔵", title: "Blue Team/AI goalie", desc: "Play against a predictive, velocity-based AI goalkeeper, or add Player 2." },
-    { emoji: "⚽", title: "Elastic Collisions", desc: "Deflect the ball off your paddles. Speed increases with each rally!" },
-    { emoji: "🏆", title: "Goal Scored", desc: "Slam the ball past the opponent's goalie and into the net to score." }
+    { emoji: "⛷️", title: "Steer Skier", desc: "Move mouse left/right to steer. The steering mimics actual ski poles (reversed inputs!)." },
+    { emoji: "🦘", title: "Launch & Jumps", desc: "Left-click or tap screen to jump. Use red ramps to launch high into the air." },
+    { emoji: "✨", title: "Aerial Spin Tricks", desc: "Click/tap repeatedly while mid-air to spin and build up style multipliers!" },
+    { emoji: "👹", title: "Escaping Yeti", desc: "Cross 1,500 meters and the Abominable Snowman begins his relentless pursuit. Stay fast!" }
   ];
 
   const handleFullscreen = () => {
@@ -63,9 +55,9 @@ export default function PongSoccerPage() {
             </span>
           ))}
         </div>
-        <h1 className={styles.title}>Soccer Arena</h1>
+        <h1 className={styles.title}>SkiFree 3D</h1>
         <p className={styles.subtitle}>
-          A retro N64-style 3D Pong soccer minigame featuring dynamic waveform sound synthesis, local multiplayer, gamepad support, and a predictive AI opponent.
+          A retro-modern low-poly alpine survival adventure in 3D WebGL. Infinite procedural slopes, obstacle physics, slalom gates, trick systems, and the legendary Abominable Snowman.
         </p>
 
         <div className={styles.btnGroup}>
@@ -78,7 +70,7 @@ export default function PongSoccerPage() {
               document.getElementById("play")?.scrollIntoView({ behavior: "smooth" });
             }}
           >
-            Start Kickoff Now <PlayIcon />
+            Start Alpine Run <PlayIcon />
           </a>
         </div>
       </header>
@@ -90,11 +82,11 @@ export default function PongSoccerPage() {
             {!isPlaying ? (
               <div 
                 className={styles.arcadePlaceholder}
-                style={{ backgroundImage: `url(${getAssetPath("/images/pong-soccer/showcase.png")})` }}
+                style={{ backgroundImage: `url(${getAssetPath("/images/ski-free-3d/showcase.png")})` }}
               >
                 <div className={styles.arcadeContent}>
-                  <h2 className={styles.arcadeTitle}>SOCCER ARENA</h2>
-                  <p className={styles.arcadeSubtitle}>N64-Style Retro Arcade Companion</p>
+                  <h2 className={styles.arcadeTitle}>SKI<span>FREE</span> 3D</h2>
+                  <p className={styles.arcadeSubtitle}>Low-Poly 3D Alpine Survival Game</p>
                   <button className={styles.playBtn} onClick={() => setIsPlaying(true)}>
                     INSERT COIN & PLAY
                   </button>
@@ -102,9 +94,9 @@ export default function PongSoccerPage() {
               </div>
             ) : (
               <iframe 
-                src={getAssetPath("/games/pong-soccer/index.html")}
+                src={getAssetPath("/games/ski-free-3d/index.html")}
                 className={styles.gameFrame}
-                title="Soccer Arena Game"
+                title="SkiFree 3D Game"
                 allow="autoplay"
               />
             )}
@@ -113,18 +105,17 @@ export default function PongSoccerPage() {
           <div className={styles.gameControlsOverlay}>
             <div className={styles.controlsGuideList}>
               <div className={styles.controlItem}>
-                <span>P1 (Red):</span>
-                <span className={styles.keycap}>W</span>
-                <span className={styles.keycap}>S</span>
+                <span>Steer:</span>
+                <span>🖱️ Mouse Move / 📱 Touch Drag</span>
               </div>
               <div className={styles.controlItem}>
-                <span>P2 (Blue):</span>
-                <span className={styles.keycap}>↑</span>
-                <span className={styles.keycap}>↓</span>
+                <span>Jump / Trick:</span>
+                <span className={styles.keycap}>Left-Click</span>
+                <span>or Tap</span>
               </div>
               <div className={styles.controlItem}>
-                <span>Gamepad:</span>
-                <span>🎮 Analog Stick</span>
+                <span>Brake:</span>
+                <span>Steer Sharply Left/Right</span>
               </div>
             </div>
             
@@ -142,37 +133,37 @@ export default function PongSoccerPage() {
         <div className={styles.mainColumn}>
           {/* Features Section */}
           <section className={styles.section} style={{ paddingTop: 0, paddingBottom: 0 }}>
-            <h2 className={styles.sectionTitle}>N64-Era Aesthetics & Gameplay</h2>
+            <h2 className={styles.sectionTitle}>Infinite Runs & Alpine Hazards</h2>
             <div className={styles.featuresGrid}>
               <div className={styles.featureCard}>
-                <span className={styles.featureIcon}>🤖💡</span>
-                <h3 className={styles.featureTitle}>Predictive Goalie AI</h3>
+                <span className={styles.featureIcon}>🌲🏔️</span>
+                <h3 className={styles.featureTitle}>Procedural Slope Generation</h3>
                 <p className={styles.featureDesc}>
-                  Features a custom goalie algorithm that reads the ball&apos;s trajectory, intercepts along its path, and dynamically responds with scaling reaction delays based on selected difficulty settings.
+                  Features a dynamically generated, infinite ski run. Ground tiles recycle seamlessly while pine trees, rock clusters, slalom gates, and speed ramps spawn procedurally to test your reflexes.
                 </p>
               </div>
 
               <div className={styles.featureCard}>
-                <span className={styles.featureIcon}>🔈⚙️</span>
-                <h3 className={styles.featureTitle}>Waveform Sound Synthesis</h3>
+                <span className={styles.featureIcon}>⛷️✨</span>
+                <h3 className={styles.featureTitle}>Aerial Trick System</h3>
                 <p className={styles.featureDesc}>
-                  Programmatically synthesizes classic retro sound effects (laser impacts, crowds cheering, scoreboard bells) using raw frequency oscillators directly via the browser&apos;s Web Audio API.
+                  Launch off red speed ramps to catch big air! Click or tap the screen repeatedly while airborne to spin. Land your tricks cleanly to rack up massive style multipliers.
                 </p>
               </div>
 
               <div className={styles.featureCard}>
-                <span className={styles.featureIcon}>🏟️🕶️</span>
-                <h3 className={styles.featureTitle}>Orthographic 3D Viewport</h3>
+                <span className={styles.featureIcon}>👹❄️</span>
+                <h3 className={styles.featureTitle}>Yeti Pursuit Logic</h3>
                 <p className={styles.featureDesc}>
-                  Implements static 3D camera angles that mimic vintage 90s console games. Standardized lighting models, field markings, and low-poly goalie paddles evoke retro soccer aesthetics.
+                  Cross 1,500 meters to trigger the Abominable Snowman. The Yeti tracks your coordinates, gains speed on straight lines, and leaps to devour you once in range.
                 </p>
               </div>
 
               <div className={styles.featureCard}>
-                <span className={styles.featureIcon}>🎮🔥</span>
-                <h3 className={styles.featureTitle}>Gamepad & Dual-Keyboard Input</h3>
+                <span className={styles.featureIcon}>🔈⛷️</span>
+                <h3 className={styles.featureTitle}>Procedural Web Audio API</h3>
                 <p className={styles.featureDesc}>
-                  Play locally in 2-Player mode. Integrates standard HTML5 Gamepad APIs for plug-and-play controller inputs, alongside split keyboard configurations.
+                  Zero external media files. Procedurally synthesizes the sound of wind rushing, ski pole impacts, friction changes on ice or powder snow, and yeti roars using real-time browser oscillators.
                 </p>
               </div>
             </div>
@@ -184,28 +175,28 @@ export default function PongSoccerPage() {
             <div className={styles.techGrid}>
               <div className={styles.techCard}>
                 <h3 className={styles.techCardTitle}>
-                  <span>⚽</span> Kinetic Collision Engine
+                  <span>⛰️</span> Infinite Tiling System
                 </h3>
                 <p className={styles.techCardContent}>
-                  Implements elastic collisions for the ball against arena boundaries and goalie paddles. Adds a slight acceleration vector on each paddle hit to keep gameplay intense.
+                  Maintains a pool of ground terrain meshes. As the skier moves down, older tiles and off-screen obstacles are automatically culled and repositioned ahead of the skier to maintain a stable 60 FPS.
                 </p>
               </div>
 
               <div className={styles.techCard}>
                 <h3 className={styles.techCardTitle}>
-                  <span>🕸️</span> WebGL Render Loop
+                  <span>📐</span> Low-Poly WebGL Meshes
                 </h3>
                 <p className={styles.techCardContent}>
-                  Uses Three.js for 3D meshes, rendering materials, and animating camera systems. The game state executes in a requestAnimationFrame loop with frame-rate independent physics updates.
+                  Built with modular, flat-shaded Three.js geometries. Includes simplified skeletal animations for the skier, Yeti, and environmental entities calculated dynamically using translation matrices.
                 </p>
               </div>
 
               <div className={styles.techCard}>
                 <h3 className={styles.techCardTitle}>
-                  <span>🎧</span> Procedural Web Audio
+                  <span>🔊</span> Oscillator Audio Graph
                 </h3>
                 <p className={styles.techCardContent}>
-                  Synthesizes sounds in real-time by chaining <code>OscillatorNode</code> and <code>GainNode</code> configurations. This keeps loading speeds fast without large WAV or MP3 network payloads.
+                  Chains multiple <code>OscillatorNode</code>, <code>GainNode</code>, and <code>BiquadFilterNode</code> instances. Leverages random frequency modulation and white noise buffers to generate authentic 8-bit sound effects.
                 </p>
               </div>
 
@@ -214,7 +205,7 @@ export default function PongSoccerPage() {
                   <span>🔒</span> Closed Source Codebase
                 </h3>
                 <p className={styles.techCardContent}>
-                  Maintained in a private repository. Implemented as an independent, modular vanilla JS script system ensuring zero external code bleed and easy integration.
+                  Developed in a private repository as a vanilla JS implementation. Kept highly decoupled from frontend frameworks to allow direct iframe integration with optimal runtime performance.
                 </p>
               </div>
             </div>
@@ -228,7 +219,7 @@ export default function PongSoccerPage() {
             <h3 className={styles.infoTitle}>Specifications</h3>
             <div className={styles.specRow}>
               <span className={styles.specLabel}>Platform</span>
-              <span className={styles.specValue}>Modern Web Browsers</span>
+              <span className={styles.specValue}>Web Browsers (Desktop & Mobile)</span>
             </div>
             <div className={styles.specRow}>
               <span className={styles.specLabel}>Engine / Graphics</span>
@@ -243,14 +234,14 @@ export default function PongSoccerPage() {
               <span className={styles.specValue}>Closed Source</span>
             </div>
             <div className={styles.specRow}>
-              <span className={styles.specLabel}>Multiplayer</span>
-              <span className={styles.specValue}>Local 2-Player / VS AI</span>
+              <span className={styles.specLabel}>High Scores</span>
+              <span className={styles.specValue}>Local Storage Tracking</span>
             </div>
           </div>
 
           {/* How to Play Card */}
           <div className={styles.infoCard}>
-            <h3 className={styles.infoTitle}>How to Play</h3>
+            <h3 className={styles.infoTitle}>How to Ski</h3>
             <div className={styles.achievementList}>
               {gameplaySteps.map((step, idx) => (
                 <div key={idx} className={styles.achievementItem}>
