@@ -3,7 +3,7 @@
  * Generates retro 8-bit / 16-bit arcade sound effects and crowd noise dynamically using the Web Audio API.
  */
 
-const AudioManager = {
+export const AudioManager = {
     ctx: null,
     muted: false,
     crowdNode: null,
@@ -26,6 +26,7 @@ const AudioManager = {
 
         try {
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return; // safety for node environments
             this.ctx = new AudioContextClass();
             
             // Set up crowd ambience
@@ -43,21 +44,26 @@ const AudioManager = {
         const btn = document.getElementById('sound-toggle');
         
         if (this.muted) {
-            btn.classList.add('muted');
-            btn.querySelector('.icon').innerText = '🔈';
-            if (this.crowdGain) {
+            if (btn) {
+                btn.classList.add('muted');
+                btn.querySelector('.icon').innerText = '🔈';
+            }
+            if (this.crowdGain && this.ctx) {
                 this.crowdGain.gain.setValueAtTime(0, this.ctx.currentTime);
             }
-        } else {
+            return this.muted;
+        }
+
+        if (btn) {
             btn.classList.remove('muted');
             btn.querySelector('.icon').innerText = '🔊';
-            // Resume crowd noise if context exists
-            if (this.ctx) {
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-                this.updateCrowdAmbience(0);
+        }
+        // Resume crowd noise if context exists
+        if (this.ctx) {
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
             }
+            this.updateCrowdAmbience(0);
         }
         return this.muted;
     },
@@ -167,6 +173,34 @@ const AudioManager = {
         osc.start(now);
         osc.stop(now + 0.11);
     },
+
+    // Heavy thud sound when a paddle hits the boundary wall
+    playPaddleWallCollision() {
+        if (!this.ctx || this.muted) return;
+        this.init(); // Fallback safety
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        // Use triangle wave for a solid physical thud
+        osc.type = 'triangle';
+        
+        // Fast downward sweep: 100Hz to 60Hz
+        osc.frequency.setValueAtTime(100, now);
+        osc.frequency.linearRampToValueAtTime(60, now + 0.15);
+
+        // Slightly louder, with decay over 0.15s
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.16);
+    },
+
 
     // Goal celebration chiptune fanfare
     playGoal() {

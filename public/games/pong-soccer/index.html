@@ -12,6 +12,13 @@
     <link rel="stylesheet" href="index.css">
     <!-- Include Three.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Include Three.js postprocessing dependencies for bloom -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 </head>
 <body>
     <!-- WebGL Canvas Container -->
@@ -97,10 +104,6 @@
             <!-- Stats Bar -->
             <div class="stats-bar">
                 <div class="stat-item">
-                    <span class="stat-label">SPEED:</span>
-                    <span id="ball-speed" class="stat-val">0 km/h</span>
-                </div>
-                <div class="stat-item">
                     <span class="stat-label">RALLY:</span>
                     <span id="rally-count" class="stat-val">0</span>
                 </div>
@@ -118,10 +121,6 @@
                         <span>Rally Record:</span>
                         <span id="max-rally">0</span>
                     </div>
-                    <div class="stat-row">
-                        <span>Max Speed:</span>
-                        <span id="max-speed">0 km/h</span>
-                    </div>
                 </div>
 
                 <button id="rematch-btn" class="retro-btn primary-btn">PLAY AGAIN</button>
@@ -129,13 +128,114 @@
             </div>
         </div>
 
+        <!-- Lighting Lab GUI Overlay -->
+        <div id="lighting-lab" class="lighting-lab glass-panel collapsed">
+            <button id="lab-toggle" class="lab-toggle-btn">💡 Lighting Lab</button>
+            <div class="lab-content">
+                <h3 class="lab-title">LIGHTING CONTROLS</h3>
+                
+                <div class="control-group">
+                    <label for="ambient-intensity">Ambient Intensity: <span id="val-ambient">0.90</span></label>
+                    <input type="range" id="ambient-intensity" min="0.0" max="2.0" step="0.05" value="0.90">
+                </div>
+
+                <div class="control-group">
+                    <label for="spotlight-intensity">Spotlight Intensity: <span id="val-spotlight">0.35</span></label>
+                    <input type="range" id="spotlight-intensity" min="0.0" max="1.5" step="0.05" value="0.35">
+                </div>
+
+                <div class="control-group">
+                    <label for="spotlight-height">Spotlight Height: <span id="val-spotlight-height">20.00</span></label>
+                    <input type="range" id="spotlight-height" min="5.0" max="40.0" step="1.0" value="20.0">
+                </div>
+
+                <div class="control-group">
+                    <label for="spotlight-distance">Spotlight Distance: <span id="val-spotlight-distance">33.28</span></label>
+                    <input type="range" id="spotlight-distance" min="10.0" max="50.0" step="0.5" value="33.28">
+                </div>
+
+                <div class="control-group">
+                    <label for="shadow-softness">Shadow Softness: <span id="val-shadow">16.0</span></label>
+                    <input type="range" id="shadow-softness" min="0.0" max="32.0" step="1.0" value="16.0">
+                </div>
+
+                <div class="control-group">
+                    <label for="underglow-intensity">Underglow Intensity: <span id="val-underglow">5.00</span></label>
+                    <input type="range" id="underglow-intensity" min="0.0" max="10.0" step="0.2" value="5.0">
+                </div>
+
+                <div class="control-group">
+                    <label for="underglow-height">Underglow Height: <span id="val-underglow-height">-0.40</span></label>
+                    <input type="range" id="underglow-height" min="-0.45" max="1.00" step="0.05" value="-0.40">
+                </div>
+
+                <div class="control-group">
+                    <label for="underglow-spread">Underglow Spread: <span id="val-underglow-spread">0.65</span></label>
+                    <input type="range" id="underglow-spread" min="0.00" max="2.50" step="0.05" value="0.65">
+                </div>
+
+                <div class="control-group">
+                    <label for="emissive-intensity">Self-Emissive Glow: <span id="val-emissive">1.50</span></label>
+                    <input type="range" id="emissive-intensity" min="0.0" max="3.0" step="0.1" value="1.5">
+                </div>
+
+                <div class="control-group">
+                    <label for="rail-wash">Rail Light Wash: <span id="val-rail-wash">0.40</span></label>
+                    <input type="range" id="rail-wash" min="0.0" max="2.0" step="0.05" value="0.40">
+                </div>
+
+
+                
+                <div class="control-group checkbox-group">
+                    <label for="shadows-toggle">Enable Shadows</label>
+                    <input type="checkbox" id="shadows-toggle" checked>
+                </div>
+                
+                <button id="btn-reset-lighting" class="reset-btn">Reset Defaults</button>
+            </div>
+        </div>
+
+        <!-- Physics Lab Control Panel (Floating Glass Widget on Bottom-Right) -->
+        <div id="physics-lab" class="physics-lab collapsed">
+            <div class="glass-panel">
+                <button id="phys-toggle" class="lab-toggle-btn">
+                    <span>⚙️ PHYSICS LAB</span>
+                </button>
+                
+                <div class="lab-content">
+                    <div class="control-group">
+                        <label for="phys-paddle-accel">Paddle Accel: <span id="val-phys-paddle-accel">120.00</span></label>
+                        <input type="range" id="phys-paddle-accel" min="50" max="300" step="5" value="120">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="phys-paddle-friction">Paddle Friction: <span id="val-phys-paddle-friction">70.00</span></label>
+                        <input type="range" id="phys-paddle-friction" min="10" max="200" step="5" value="70">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="phys-ball-speed-cap">Ball Speed Cap: <span id="val-phys-ball-speed-cap">38.00</span></label>
+                        <input type="range" id="phys-ball-speed-cap" min="10" max="80" step="1" value="38">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="phys-ball-speed-mult">Speed Increase %: <span id="val-phys-ball-speed-mult">2.00%</span></label>
+                        <input type="range" id="phys-ball-speed-mult" min="1.00" max="1.10" step="0.01" value="1.02">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="phys-momentum-transfer">Momentum Transfer: <span id="val-phys-momentum-transfer">25%</span></label>
+                        <input type="range" id="phys-momentum-transfer" min="0.00" max="1.00" step="0.05" value="0.25">
+                    </div>
+                    
+                    <button id="btn-reset-physics" class="reset-btn">Reset Defaults</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Game Scripts -->
-    <script src="audio.js"></script>
-    <script src="controls.js"></script>
-    <script src="ai.js"></script>
-    <script src="renderer.js"></script>
-    <script src="game.js"></script>
+    <script type="module" src="game.js"></script>
 </body>
 </html>

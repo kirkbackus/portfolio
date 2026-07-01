@@ -1,3 +1,37 @@
+/**
+ * Main Game Orchestrator (game.js)
+ * Ties together inputs, physics engine, state machines, sound effects, and rendering loops.
+ */
+
+import { Controls } from './controls.js';
+import { AudioManager } from './audio.js';
+import { AIController } from './ai.js';
+import { Renderer } from './renderer.js';
+import { PhysicsEngine } from './physics.js';
+import { GameState } from './gamestate.js';
+
+const DEFAULT_LIGHTING = {
+    'ambient-intensity': 0.90,
+    'spotlight-intensity': 0.35,
+    'spotlight-height': 20.0,
+    'spotlight-distance': 33.28,
+    'shadow-softness': 16.0,
+    'underglow-intensity': 5.0,
+    'underglow-height': -0.40,
+    'underglow-spread': 0.65,
+    'emissive-intensity': 1.5,
+    'rail-wash': 0.40,
+    'shadows-enabled': true
+};
+
+const DEFAULT_PHYSICS = {
+    'phys-paddle-accel': 120.0,
+    'phys-paddle-friction': 70.0,
+    'phys-ball-speed-cap': 38.0,
+    'phys-ball-speed-mult': 1.02,
+    'phys-momentum-transfer': 0.25
+};
+
 // Playtest log bridge to local receiver
 (function() {
     function sendLog(type, message) {
@@ -19,13 +53,15 @@
         sendLog('ERROR', args.join(' '));
     };
 
-    window.onerror = function(message, source, lineno, colno, error) {
-        sendLog('FATAL', `${message} at ${source}:${lineno}:${colno}`);
-        return false;
-    };
+    if (typeof window !== 'undefined') {
+        window.onerror = function(message, source, lineno, colno, error) {
+            sendLog('FATAL', `${message} at ${source}:${lineno}:${colno}`);
+            return false;
+        };
+    }
 })();
 
-const Game = {
+export const Game = {
     // Game dimensions
     arenaWidth: 40.0,
     arenaHeight: 22.0,
@@ -35,23 +71,6 @@ const Game = {
     difficulty: 'medium',
     gameMode: '1p', // '1p' (vs AI) or '2p' (local 2 players)
 
-    // Game state
-    state: 'TITLE', // TITLE, KICKOFF, PLAY, GOAL, VICTORY
-    scores: { red: 0, blue: 0 },
-    maxScore: 5,
-    rallyCount: 0,
-    maxRallyRecord: 0,
-    maxBallSpeedRecord: 0,
-
-    // Timers
-    kickoffTimer: 0,
-    stateTimer: 0,
-
-    // Physics Timestep
-    lastTime: 0,
-    accumulator: 0,
-    fixedTimeStep: 1 / 60, // 60 updates per second
-
     // Game Entities
     ball: {
         x: 0, z: 0,
@@ -59,19 +78,26 @@ const Game = {
         radius: 0.6,
         baseSpeed: 16.0,
         speed: 16.0,
-        speedCap: 35.0
+        speedCap: 38.0
     },
 
     paddles: {
         // Red team (Player 1)
         pinkGk: { x: -18.0, z: 0, width: 1.2, height: 4.0, velocity: 0, limitZ: 6.0 },   // Goalkeeper
         redFw:  { x: 7.0,   z: 0, width: 1.2, height: 4.0, velocity: 0, limitZ: 9.0 },   // Forward
-        // Blue team (AI)
+        // Blue team (AI / Player 2)
         blueFw: { x: -7.0,  z: 0, width: 1.2, height: 4.0, velocity: 0, limitZ: 9.0 },   // Forward
-        pinkGkAI:{ x: 18.0, z: 0, width: 1.2, height: 4.0, velocity: 0, limitZ: 6.0 }    // Goalkeeper (AI controls Purple)
+        pinkGkAI:{ x: 18.0, z: 0, width: 1.2, height: 4.0, velocity: 0, limitZ: 6.0 }    // Goalkeeper
     },
 
     autoplay: false,
+
+    // Physics Timestep
+    lastTime: 0,
+    accumulator: 0,
+    fixedTimeStep: 1 / 60, // 60 updates per second
+
+    debugFrameCount: 0,
 
     // Initialize Game
     init() {
@@ -104,18 +130,18 @@ const Game = {
                     diffSection.style.display = 'none';
                     controls1p.style.display = 'none';
                     controls2p.style.display = 'block';
-                } else {
-                    diffSection.style.display = 'block';
-                    controls1p.style.display = 'block';
-                    controls2p.style.display = 'none';
+                    return;
                 }
+                diffSection.style.display = 'block';
+                controls1p.style.display = 'block';
+                controls2p.style.display = 'none';
             });
         });
 
         // Difficulty Buttons
         const diffBtns = document.querySelectorAll('.diff-btn');
         diffBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', () => {
                 diffBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.difficulty = btn.dataset.diff;
@@ -124,6 +150,121 @@ const Game = {
 
         // Initialize Renderer
         Renderer.init(document.getElementById('canvas-container'));
+
+        // Load and apply initial settings from local storage if they exist
+        let savedLighting = null;
+        try {
+            const data = localStorage.getItem('pong_soccer_lighting_config');
+            if (data) savedLighting = JSON.parse(data);
+        } catch (e) {}
+        this.applyLighting(savedLighting || DEFAULT_LIGHTING);
+
+        let savedPhysics = null;
+        try {
+            const data = localStorage.getItem('pong_soccer_physics_config');
+            if (data) savedPhysics = JSON.parse(data);
+        } catch (e) {}
+        this.applyPhysics(savedPhysics || DEFAULT_PHYSICS);
+
+        // Initialize Lighting Lab GUI listeners
+        const labPanel = document.getElementById('lighting-lab');
+        const labToggle = document.getElementById('lab-toggle');
+        if (labToggle && labPanel) {
+            labToggle.addEventListener('click', () => {
+                labPanel.classList.toggle('collapsed');
+            });
+        }
+
+        const setupLabSlider = (sliderId, valueId, onChange) => {
+            const slider = document.getElementById(sliderId);
+            const valueSpan = document.getElementById(valueId);
+            if (slider && valueSpan) {
+                slider.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    valueSpan.textContent = val.toFixed(2);
+                    onChange(val);
+                    this.saveLightingSettings();
+                });
+            }
+        };
+
+        setupLabSlider('ambient-intensity', 'val-ambient', (val) => Renderer.setAmbientIntensity(val));
+        setupLabSlider('spotlight-intensity', 'val-spotlight', (val) => Renderer.setSpotlightIntensity(val));
+        setupLabSlider('spotlight-height', 'val-spotlight-height', (val) => Renderer.setSpotlightHeight(val));
+        setupLabSlider('spotlight-distance', 'val-spotlight-distance', (val) => Renderer.setSpotlightDistance(val));
+        setupLabSlider('shadow-softness', 'val-shadow', (val) => Renderer.setShadowSoftness(val));
+        setupLabSlider('underglow-intensity', 'val-underglow', (val) => Renderer.setUnderglowIntensity(val));
+        setupLabSlider('underglow-height', 'val-underglow-height', (val) => Renderer.setUnderglowHeight(val));
+        setupLabSlider('underglow-spread', 'val-underglow-spread', (val) => Renderer.setUnderglowSpread(val));
+        setupLabSlider('emissive-intensity', 'val-emissive', (val) => Renderer.setSelfEmissiveIntensity(val));
+        setupLabSlider('rail-wash', 'val-rail-wash', (val) => Renderer.setRailLightWash(val));
+
+        const shadowCheckbox = document.getElementById('shadows-toggle');
+        if (shadowCheckbox) {
+            shadowCheckbox.addEventListener('change', (e) => {
+                Renderer.setShadowsEnabled(e.target.checked);
+                this.saveLightingSettings();
+            });
+        }
+
+        // Initialize Physics Lab GUI listeners
+        const physPanel = document.getElementById('physics-lab');
+        const physToggle = document.getElementById('phys-toggle');
+        if (physToggle && physPanel) {
+            physToggle.addEventListener('click', () => {
+                physPanel.classList.toggle('collapsed');
+            });
+        }
+
+        const setupPhysSlider = (sliderId, valueId, formatFn, onChange) => {
+            const slider = document.getElementById(sliderId);
+            const valueSpan = document.getElementById(valueId);
+            if (slider && valueSpan) {
+                slider.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    valueSpan.textContent = formatFn(val);
+                    onChange(val);
+                    this.savePhysicsSettings();
+                });
+            }
+        };
+
+        setupPhysSlider('phys-paddle-accel', 'val-phys-paddle-accel', (v) => v.toFixed(2), (val) => {
+            PhysicsEngine.config.paddleAcceleration = val;
+        });
+        
+        setupPhysSlider('phys-paddle-friction', 'val-phys-paddle-friction', (v) => v.toFixed(2), (val) => {
+            PhysicsEngine.config.paddleFriction = val;
+        });
+
+        setupPhysSlider('phys-ball-speed-cap', 'val-phys-ball-speed-cap', (v) => v.toFixed(2), (val) => {
+            this.ball.speedCap = val;
+        });
+
+        setupPhysSlider('phys-ball-speed-mult', 'val-phys-ball-speed-mult', (v) => ((v - 1.0) * 100).toFixed(2) + '%', (val) => {
+            PhysicsEngine.config.ballSpeedIncrease = val;
+        });
+
+        setupPhysSlider('phys-momentum-transfer', 'val-phys-momentum-transfer', (v) => (v * 100).toFixed(0) + '%', (val) => {
+            PhysicsEngine.config.momentumTransfer = val;
+        });
+
+        // Reset Buttons
+        const btnResetLighting = document.getElementById('btn-reset-lighting');
+        if (btnResetLighting) {
+            btnResetLighting.addEventListener('click', () => {
+                localStorage.removeItem('pong_soccer_lighting_config');
+                this.applyLighting(DEFAULT_LIGHTING);
+            });
+        }
+
+        const btnResetPhysics = document.getElementById('btn-reset-physics');
+        if (btnResetPhysics) {
+            btnResetPhysics.addEventListener('click', () => {
+                localStorage.removeItem('pong_soccer_physics_config');
+                this.applyPhysics(DEFAULT_PHYSICS);
+            });
+        }
 
         // Start requestAnimationFrame loop
         this.lastTime = null;
@@ -143,20 +284,20 @@ const Game = {
         let deltaTime = (time - this.lastTime) / 1000;
         this.lastTime = time;
 
-        // Prevent negative delta times (e.g., if performance.now and RAF times use different epochs)
+        // Prevent negative delta times
         if (deltaTime < 0) deltaTime = 0;
         if (deltaTime > 0.1) deltaTime = 0.1;
 
         // Periodic debug logging for playtesting
-        this.debugFrameCount = (this.debugFrameCount || 0) + 1;
+        this.debugFrameCount++;
         if (this.debugFrameCount % 120 === 0) {
-            console.log(`[DEBUG] Frame: ${this.debugFrameCount} | State: ${this.state} | KickoffTimer: ${this.kickoffTimer.toFixed(2)} | Ball: (${this.ball.x.toFixed(1)}, ${this.ball.z.toFixed(1)}) | Rally: ${this.rallyCount}`);
+            console.log(`[DEBUG] Frame: ${this.debugFrameCount} | State: ${GameState.state} | KickoffTimer: ${GameState.kickoffTimer.toFixed(2)} | Ball: (${this.ball.x.toFixed(1)}, ${this.ball.z.toFixed(1)}) | Rally: ${GameState.rallyCount}`);
         }
 
         // Update camera idle sway (pass current time in seconds)
         Renderer.setCameraSway(time / 1000);
 
-        if (this.state !== 'TITLE') {
+        if (GameState.state !== 'TITLE') {
             this.accumulator += deltaTime;
             
             // Fixed timestep loop for physics
@@ -167,7 +308,8 @@ const Game = {
 
             // Sync physics coordinate data to 3D Renderer elements
             Renderer.updatePaddles(this.paddles, deltaTime);
-            Renderer.updateBall(this.ball);
+            const isExploded = (GameState.state === 'GOAL' || GameState.state === 'VICTORY');
+            Renderer.updateBall(this.ball, isExploded);
         }
 
         // Render scene
@@ -179,23 +321,23 @@ const Game = {
     // Physics & State Updates
     updatePhysics(dt) {
         // 1. Update Game Timers based on state
-        if (this.state === 'KICKOFF') {
-            this.kickoffTimer -= dt;
-            if (this.kickoffTimer <= 0) {
-                this.state = 'PLAY';
+        if (GameState.state === 'KICKOFF') {
+            GameState.kickoffTimer -= dt;
+            if (GameState.kickoffTimer <= 0) {
+                GameState.changeState('PLAY');
                 document.getElementById('countdown').innerText = '';
                 document.getElementById('game-status').innerText = 'GO!';
                 this.launchBall();
             } else {
-                document.getElementById('countdown').innerText = Math.ceil(this.kickoffTimer);
-                // Keep ball stationary during countdown countdown
+                document.getElementById('countdown').innerText = Math.ceil(GameState.kickoffTimer);
+                // Keep ball stationary during countdown
                 this.ball.vx = 0;
                 this.ball.vz = 0;
             }
-        } else if (this.state === 'GOAL') {
-            this.stateTimer -= dt;
-            if (this.stateTimer <= 0) {
-                if (this.scores.red >= this.maxScore || this.scores.blue >= this.maxScore) {
+        } else if (GameState.state === 'GOAL') {
+            GameState.stateTimer -= dt;
+            if (GameState.stateTimer <= 0) {
+                if (GameState.isVictory()) {
                     this.endGame();
                 } else {
                     this.startKickoff();
@@ -205,11 +347,10 @@ const Game = {
 
         // 2. Process Player Paddle Inputs
         let inputs = { player1: 0, player2: 0 };
-        const playerSpeed = 18.0;
+        const playerSpeed = 24.0;
 
         if (this.autoplay) {
-            // Autoplay AI logic: track ball Z when it moves towards us or is close
-            // Player 1 (Red team - moves both pinkGk and redFw together)
+            // Autoplay AI logic: track ball Z
             const targetP1Z = (this.ball.x > 0 && this.ball.vx > 0) 
                 ? Math.max(-this.paddles.redFw.limitZ, Math.min(this.paddles.redFw.limitZ, this.ball.z)) 
                 : Math.max(-this.paddles.pinkGk.limitZ, Math.min(this.paddles.pinkGk.limitZ, this.ball.z));
@@ -218,7 +359,6 @@ const Game = {
                 inputs.player1 = Math.sign(diffP1) * 0.95;
             }
 
-            // Player 2 (Blue team - moves both blueFw and pinkGkAI together)
             const targetP2Z = (this.ball.x < 0 && this.ball.vx < 0) 
                 ? Math.max(-this.paddles.blueFw.limitZ, Math.min(this.paddles.blueFw.limitZ, this.ball.z)) 
                 : Math.max(-this.paddles.pinkGkAI.limitZ, Math.min(this.paddles.pinkGkAI.limitZ, this.ball.z));
@@ -231,38 +371,68 @@ const Game = {
             inputs = Controls.getInputs();
         }
 
-        // Move Player 1 (Red Team - both GK and FW move together)
-        if (inputs.player1 !== 0) {
-            this.paddles.pinkGk.z += inputs.player1 * playerSpeed * dt;
-            this.paddles.pinkGk.z = Math.max(-this.paddles.pinkGk.limitZ, Math.min(this.paddles.pinkGk.limitZ, this.paddles.pinkGk.z));
-            this.paddles.pinkGk.velocity = inputs.player1 * playerSpeed;
-
-            this.paddles.redFw.z += inputs.player1 * playerSpeed * dt;
-            this.paddles.redFw.z = Math.max(-this.paddles.redFw.limitZ, Math.min(this.paddles.redFw.limitZ, this.paddles.redFw.z));
-            this.paddles.redFw.velocity = inputs.player1 * playerSpeed;
-        } else {
-            this.paddles.pinkGk.velocity = 0;
-            this.paddles.redFw.velocity = 0;
+        // Remember old Z positions to detect boundary collisions
+        const oldPositions = {};
+        for (const [key, paddle] of Object.entries(this.paddles)) {
+            oldPositions[key] = paddle.z;
         }
 
-        // Move Player 2 (Blue Team)
-        if (this.gameMode === '2p') {
-            // In 2 Player mode, Player 2 controls the Blue team (both GK and FW move together)
-            if (inputs.player2 !== 0) {
-                this.paddles.pinkGkAI.z += inputs.player2 * playerSpeed * dt;
-                this.paddles.pinkGkAI.z = Math.max(-this.paddles.pinkGkAI.limitZ, Math.min(this.paddles.pinkGkAI.limitZ, this.paddles.pinkGkAI.z));
-                this.paddles.pinkGkAI.velocity = inputs.player2 * playerSpeed;
+        // Apply momentum to Player 1 (Red Team)
+        const acceleration = PhysicsEngine.config.paddleAcceleration;
+        const friction = PhysicsEngine.config.paddleFriction;
 
-                this.paddles.blueFw.z += inputs.player2 * playerSpeed * dt;
-                this.paddles.blueFw.z = Math.max(-this.paddles.blueFw.limitZ, Math.min(this.paddles.blueFw.limitZ, this.paddles.blueFw.z));
-                this.paddles.blueFw.velocity = inputs.player2 * playerSpeed;
-            } else {
-                this.paddles.pinkGkAI.velocity = 0;
-                this.paddles.blueFw.velocity = 0;
-            }
+        if (inputs.player1 !== 0) {
+            this.paddles.pinkGk.velocity += inputs.player1 * acceleration * dt;
+            this.paddles.pinkGk.velocity = Math.max(-playerSpeed, Math.min(playerSpeed, this.paddles.pinkGk.velocity));
+
+            this.paddles.redFw.velocity += inputs.player1 * acceleration * dt;
+            this.paddles.redFw.velocity = Math.max(-playerSpeed, Math.min(playerSpeed, this.paddles.redFw.velocity));
         } else {
-            // In 1 Player mode, AI controls the Blue team
-            AI.update(
+            const decel = friction * dt;
+            if (Math.abs(this.paddles.pinkGk.velocity) <= decel) {
+                this.paddles.pinkGk.velocity = 0;
+            } else {
+                this.paddles.pinkGk.velocity -= Math.sign(this.paddles.pinkGk.velocity) * decel;
+            }
+
+            if (Math.abs(this.paddles.redFw.velocity) <= decel) {
+                this.paddles.redFw.velocity = 0;
+            } else {
+                this.paddles.redFw.velocity -= Math.sign(this.paddles.redFw.velocity) * decel;
+            }
+        }
+
+        // Integrate Player 1 position
+        this.paddles.pinkGk.z += this.paddles.pinkGk.velocity * dt;
+        this.paddles.redFw.z += this.paddles.redFw.velocity * dt;
+
+        // Apply momentum or AI updates to Player 2 (Blue Team)
+        if (this.gameMode === '2p') {
+            if (inputs.player2 !== 0) {
+                this.paddles.pinkGkAI.velocity += inputs.player2 * acceleration * dt;
+                this.paddles.pinkGkAI.velocity = Math.max(-playerSpeed, Math.min(playerSpeed, this.paddles.pinkGkAI.velocity));
+
+                this.paddles.blueFw.velocity += inputs.player2 * acceleration * dt;
+                this.paddles.blueFw.velocity = Math.max(-playerSpeed, Math.min(playerSpeed, this.paddles.blueFw.velocity));
+            } else {
+                const decel = friction * dt;
+                if (Math.abs(this.paddles.pinkGkAI.velocity) <= decel) {
+                    this.paddles.pinkGkAI.velocity = 0;
+                } else {
+                    this.paddles.pinkGkAI.velocity -= Math.sign(this.paddles.pinkGkAI.velocity) * decel;
+                }
+
+                if (Math.abs(this.paddles.blueFw.velocity) <= decel) {
+                    this.paddles.blueFw.velocity = 0;
+                } else {
+                    this.paddles.blueFw.velocity -= Math.sign(this.paddles.blueFw.velocity) * decel;
+                }
+            }
+            // Integrate Player 2 position
+            this.paddles.pinkGkAI.z += this.paddles.pinkGkAI.velocity * dt;
+            this.paddles.blueFw.z += this.paddles.blueFw.velocity * dt;
+        } else {
+            AIController.update(
                 this.ball, 
                 this.paddles.blueFw, 
                 this.paddles.pinkGkAI, 
@@ -273,170 +443,83 @@ const Game = {
             );
         }
 
-        // 4. Update Ball Physics if state is PLAY or GOAL (for post-goal physics rolling)
-        if (this.state === 'PLAY' || this.state === 'GOAL') {
-            // Apply velocity
-            this.ball.x += this.ball.vx * dt;
-            this.ball.z += this.ball.vz * dt;
+        // Boundary Clamp and Collision Detection for all paddles
+        for (const [key, paddle] of Object.entries(this.paddles)) {
+            const limit = paddle.limitZ;
+            const oldZ = oldPositions[key];
 
-            // Handle Wall Collisions (Top and Bottom)
-            const halfHeight = this.arenaHeight / 2;
-            const wallLimitZ = halfHeight - this.ball.radius;
-            if (Math.abs(this.ball.z) > wallLimitZ) {
-                this.ball.z = Math.sign(this.ball.z) * wallLimitZ;
-                this.ball.vz = -this.ball.vz * 0.98; // 2% energy loss on walls
-                AudioManager.playBounceWall();
+            if (paddle.z > limit) {
+                paddle.z = limit;
+                if (oldZ < limit && paddle.velocity > 2.0) {
+                    Renderer.triggerPaddleImpact(key, 2.0, Math.abs(paddle.velocity), 0, true);
+                    AudioManager.playPaddleWallCollision();
+                }
+                paddle.velocity = 0;
+            } else if (paddle.z < -limit) {
+                paddle.z = -limit;
+                if (oldZ > -limit && paddle.velocity < -2.0) {
+                    Renderer.triggerPaddleImpact(key, -2.0, Math.abs(paddle.velocity), 0, true);
+                    AudioManager.playPaddleWallCollision();
+                }
+                paddle.velocity = 0;
             }
+        }
+
+        // 3. Update Ball Physics if state is PLAY or GOAL
+        if (GameState.state === 'PLAY' || GameState.state === 'GOAL') {
+            PhysicsEngine.integrateBall(this.ball, dt);
+            PhysicsEngine.checkWallCollisions(this.ball, this.arenaHeight, () => AudioManager.playBounceWall());
 
             // If state is PLAY, check goal triggers and paddle hits
-            if (this.state === 'PLAY') {
-                this.checkPaddleCollisions();
-                this.checkGoalTrigger();
-            }
-        }
-    },
+            if (GameState.state === 'PLAY') {
+                PhysicsEngine.checkPaddleCollisions(this.ball, this.paddles, (key, relativeHitZ, speed, hitSideX) => {
+                    AudioManager.playBouncePaddle();
+                    Renderer.triggerPaddleImpact(key, relativeHitZ, speed, hitSideX, false);
+                    GameState.incrementRally();
+                    GameState.recordBallSpeed(speed);
+                    AudioManager.updateCrowdAmbience(GameState.rallyCount);
+                    this.updateHUDStats();
+                });
 
-    // Check collision between ball and all paddles
-    checkPaddleCollisions() {
-        for (const [key, paddle] of Object.entries(this.paddles)) {
-            // Ball should pass through the back of paddles to avoid disadvantage
-            if (key === 'pinkGk' && this.ball.vx > 0) continue;   // Left Goalkeeper only blocks ball moving left
-            if (key === 'blueFw' && this.ball.vx < 0) continue;   // Left Forward (AI) only blocks ball moving right
-            if (key === 'redFw' && this.ball.vx > 0) continue;    // Right Forward (Player) only blocks ball moving left
-            if (key === 'pinkGkAI' && this.ball.vx < 0) continue; // Right Goalkeeper (AI) only blocks ball moving right
-
-            // AABB-Sphere Collision Check
-            const halfW = paddle.width / 2;
-            const halfH = paddle.height / 2;
-
-            // Find closest point on paddle to ball center
-            const closestX = Math.max(paddle.x - halfW, Math.min(paddle.x + halfW, this.ball.x));
-            const closestZ = Math.max(paddle.z - halfH, Math.min(paddle.z + halfH, this.ball.z));
-
-            // Calculate distance
-            const distX = this.ball.x - closestX;
-            const distZ = this.ball.z - closestZ;
-            const distanceSq = distX * distX + distZ * distZ;
-
-            if (distanceSq < this.ball.radius * this.ball.radius) {
-                // Collision occurred!
-                // 1. Resolve overlap (push ball out of paddle along collision axis)
-                const distance = Math.sqrt(distanceSq);
-                
-                // If overlap is tiny or ball is exactly centered, push along X-axis direction
-                const overlap = this.ball.radius - distance;
-                const dirX = (distance > 0.01) ? (distX / distance) : ((this.ball.vx > 0) ? -1 : 1);
-                const dirZ = (distance > 0.01) ? (distZ / distance) : 0;
-                
-                // Push ball out
-                this.ball.x += dirX * overlap;
-                this.ball.z += dirZ * overlap;
-
-                // 2. Rebound angle math
-                // Invert horizontal velocity direction
-                const bounceDirX = (paddle.x < this.ball.x) ? 1 : -1;
-                
-                // Speed calculation (increase 2% per hit up to cap)
-                this.ball.speed = Math.min(this.ball.speedCap, this.ball.speed * 1.02);
-                if (this.ball.speed > this.maxBallSpeedRecord) {
-                    this.maxBallSpeedRecord = this.ball.speed;
+                const goalScorer = PhysicsEngine.checkGoalTrigger(
+                    this.ball, 
+                    this.arenaWidth, 
+                    this.goalWidth, 
+                    () => AudioManager.playBounceWall()
+                );
+                if (goalScorer) {
+                    this.triggerGoalScore(goalScorer);
                 }
-
-                // Deflection based on offset from center of paddle along Z-axis
-                const offsetZ = (this.ball.z - paddle.z) / halfH; // -1.0 to 1.0
-                const maxDeflectionAngle = Math.PI / 4.5; // ~40 degrees
-                const targetAngle = offsetZ * maxDeflectionAngle;
-
-                // Combine deflection angle and lateral velocity transfer from moving paddle
-                let targetVz = Math.sin(targetAngle) * this.ball.speed;
-                if (paddle.velocity !== 0) {
-                    targetVz += paddle.velocity * 0.25; // 25% momentum transfer
-                }
-
-                // Construct new velocity vector
-                let targetVx = bounceDirX * Math.sqrt(Math.max(10.0, this.ball.speed * this.ball.speed - targetVz * targetVz));
-                
-                // Re-normalize and scale vector to exactly match this.ball.speed
-                const actualSpeed = Math.sqrt(targetVx * targetVx + targetVz * targetVz);
-                this.ball.vx = (targetVx / actualSpeed) * this.ball.speed;
-                this.ball.vz = (targetVz / actualSpeed) * this.ball.speed;
-
-                // Play Audio
-                AudioManager.playBouncePaddle();
-
-                // Trigger visual soft-body deformation in the 3D Renderer
-                const relativeHitZ = this.ball.z - paddle.z;
-                Renderer.triggerPaddleImpact(key, relativeHitZ, this.ball.speed);
-
-                // Increment Rally Count
-                this.rallyCount++;
-                if (this.rallyCount > this.maxRallyRecord) {
-                    this.maxRallyRecord = this.rallyCount;
-                }
-                
-                // Update crowd noise & HUD elements
-                AudioManager.updateCrowdAmbience(this.rallyCount);
-                this.updateHUDStats();
-            }
-        }
-    },
-
-    // Check if ball crossed a goal line
-    checkGoalTrigger() {
-        const halfWidth = this.arenaWidth / 2;
-        const goalThreshold = halfWidth;
-
-        // 1. Goal Left (Defended by Player 1 Pink GK, attacked by AI Blue Forward)
-        if (this.ball.x < -goalThreshold) {
-            // Is it inside the goal net limits?
-            if (Math.abs(this.ball.z) < this.goalWidth / 2) {
-                // GOAL FOR BLUE!
-                this.triggerGoalScore('blue');
-            } else {
-                // Hit back wall, bounce back!
-                this.ball.x = -goalThreshold;
-                this.ball.vx = -this.ball.vx * 0.98;
-                AudioManager.playBounceWall();
-            }
-        }
-        // 2. Goal Right (Defended by AI Purple GK, attacked by Player 1 Red Forward)
-        else if (this.ball.x > goalThreshold) {
-            if (Math.abs(this.ball.z) < this.goalWidth / 2) {
-                // GOAL FOR RED!
-                this.triggerGoalScore('red');
-            } else {
-                // Hit back wall, bounce back!
-                this.ball.x = goalThreshold;
-                this.ball.vx = -this.ball.vx * 0.98;
-                AudioManager.playBounceWall();
             }
         }
     },
 
     // Handle goal scoring sequence
     triggerGoalScore(scoringTeam) {
-        this.state = 'GOAL';
-        this.stateTimer = 2.5; // Wait 2.5 seconds before kickoff
+        GameState.changeState('GOAL');
+        GameState.stateTimer = 2.5;
 
         // Play Goal audio and trigger 3D effects
         AudioManager.playGoal();
         
         const goalX = (scoringTeam === 'red') ? this.arenaWidth/2 : -this.arenaWidth/2;
-        Renderer.triggerGoalParticles(goalX, this.ball.z);
+        const teamColorHex = (scoringTeam === 'red') ? 0xff3b30 : 0x007aff;
+        Renderer.triggerGoalExplosion(goalX, this.ball.z, teamColorHex);
         Renderer.triggerNetJiggle(scoringTeam === 'red' ? 'right' : 'left');
+        Renderer.triggerCheering();
+
+        const newScores = GameState.scoreGoal(scoringTeam);
 
         // Update score and trigger visual flash on HUD scorecard
         if (scoringTeam === 'red') {
-            this.scores.red++;
-            document.getElementById('score-red').innerText = this.scores.red;
+            document.getElementById('score-red').innerText = newScores.red;
             document.getElementById('game-status').innerText = 'RED GOAL!';
             
             const card = document.getElementById('score-red').parentElement;
             card.classList.add('flash');
             setTimeout(() => card.classList.remove('flash'), 500);
         } else {
-            this.scores.blue++;
-            document.getElementById('score-blue').innerText = this.scores.blue;
+            document.getElementById('score-blue').innerText = newScores.blue;
             document.getElementById('game-status').innerText = 'BLUE GOAL!';
             
             const card = document.getElementById('score-blue').parentElement;
@@ -444,8 +527,6 @@ const Game = {
             setTimeout(() => card.classList.remove('flash'), 500);
         }
 
-        // Reset rally count
-        this.rallyCount = 0;
         AudioManager.updateCrowdAmbience(0);
         this.updateHUDStats();
     },
@@ -456,10 +537,9 @@ const Game = {
         this.ball.z = 0;
         this.ball.speed = this.ball.baseSpeed;
 
-        // Choose random direction (primarily horizontal but with Z velocity)
-        // Ensure angle is not too vertical
-        const angleRange = Math.PI / 4; // +/- 45 degrees
-        const direction = Math.random() < 0.5 ? -1 : 1; // Left or Right
+        // Choose random direction
+        const angleRange = Math.PI / 4;
+        const direction = Math.random() < 0.5 ? -1 : 1;
         const angle = (Math.random() * 2 - 1) * angleRange;
 
         this.ball.vx = direction * Math.cos(angle) * this.ball.speed;
@@ -470,8 +550,8 @@ const Game = {
 
     // Set up kickoff countdown
     startKickoff() {
-        this.state = 'KICKOFF';
-        this.kickoffTimer = 3.0;
+        GameState.changeState('KICKOFF');
+        GameState.kickoffTimer = 3.0;
         
         // Reset ball position
         this.ball.x = 0;
@@ -485,29 +565,29 @@ const Game = {
         this.updateHUDStats();
     },
 
-    // HUD Update
     updateHUDStats() {
-        // Render speeds in arbitrary km/h units for arcade flavor
         const kmh = Math.round(this.ball.speed * 6.5);
-        document.getElementById('ball-speed').innerText = `${kmh} km/h`;
-        document.getElementById('rally-count').innerText = this.rallyCount;
+        const speedElem = document.getElementById('ball-speed');
+        if (speedElem) {
+            speedElem.innerText = `${kmh} km/h`;
+        }
+        document.getElementById('rally-count').innerText = GameState.rallyCount;
     },
 
     // Action handlers for menus
     startGame() {
-        // Initialize audio on first click
         AudioManager.init();
 
         // Scale ball base speed and cap speed by difficulty setting
         if (this.difficulty === 'easy') {
             this.ball.baseSpeed = 12.0;
-            this.ball.speedCap = 20.0;
+            this.ball.speedCap = 25.0;
         } else if (this.difficulty === 'hard') {
             this.ball.baseSpeed = 18.0;
-            this.ball.speedCap = 42.0;
+            this.ball.speedCap = 55.0;
         } else { // medium
             this.ball.baseSpeed = 16.0;
-            this.ball.speedCap = 30.0;
+            this.ball.speedCap = 38.0;
         }
         this.ball.speed = this.ball.baseSpeed;
 
@@ -520,23 +600,22 @@ const Game = {
         document.getElementById('hud').classList.add('active');
 
         // Reset game stats
-        this.scores.red = 0;
-        this.scores.blue = 0;
-        this.rallyCount = 0;
-        this.maxRallyRecord = 0;
-        this.maxBallSpeedRecord = this.ball.baseSpeed;
+        GameState.reset(this.ball.baseSpeed);
 
         document.getElementById('score-red').innerText = '0';
         document.getElementById('score-blue').innerText = '0';
 
         // Reset paddles to center
-        for (const [key, paddle] of Object.entries(this.paddles)) {
+        for (const paddle of Object.values(this.paddles)) {
             paddle.z = 0;
             paddle.velocity = 0;
         }
 
         // Play initial crowd sound
         AudioManager.updateCrowdAmbience(0);
+
+        // Reset cheering animation state
+        Renderer.triggerCheering(false);
 
         // Start background music loop
         AudioManager.startBGM();
@@ -545,7 +624,7 @@ const Game = {
     },
 
     endGame() {
-        this.state = 'VICTORY';
+        GameState.changeState('VICTORY');
         
         // Play final chiptune fanfare
         AudioManager.playVictory();
@@ -553,17 +632,24 @@ const Game = {
         // Stop background music loop
         AudioManager.stopBGM();
 
+        // Trigger infinite cheering/hopping on victory screen
+        Renderer.triggerCheering(true);
+
         // Show victory modal overlay
         document.getElementById('hud').classList.remove('active');
         
         const winTitle = document.getElementById('victory-title');
-        const winnerText = (this.scores.red >= this.maxScore) ? 'RED TEAM WINS!' : 'BLUE TEAM WINS!';
+        const winner = GameState.isVictory();
+        const winnerText = winner === 'red' ? 'RED TEAM WINS!' : 'BLUE TEAM WINS!';
         winTitle.innerText = winnerText;
-        winTitle.style.color = (this.scores.red >= this.maxScore) ? 'var(--red-primary)' : 'var(--blue-primary)';
+        winTitle.style.color = winner === 'red' ? 'var(--red-primary)' : 'var(--blue-primary)';
 
         // Display stats
-        document.getElementById('max-rally').innerText = this.maxRallyRecord;
-        document.getElementById('max-speed').innerText = `${Math.round(this.maxBallSpeedRecord * 6.5)} km/h`;
+        document.getElementById('max-rally').innerText = GameState.maxRallyRecord;
+        const maxSpeedElem = document.getElementById('max-speed');
+        if (maxSpeedElem) {
+            maxSpeedElem.innerText = `${Math.round(GameState.maxBallSpeedRecord * 6.5)} km/h`;
+        }
 
         document.getElementById('victory-screen').classList.add('active');
     },
@@ -573,10 +659,152 @@ const Game = {
         this.startGame();
     },
 
+    applyLighting(settings) {
+        // Ambient Intensity
+        Renderer.setAmbientIntensity(settings['ambient-intensity']);
+        const sAmbient = document.getElementById('ambient-intensity');
+        if (sAmbient) sAmbient.value = settings['ambient-intensity'];
+        const vAmbient = document.getElementById('val-ambient');
+        if (vAmbient) vAmbient.textContent = settings['ambient-intensity'].toFixed(2);
+
+        // Spotlight Intensity
+        Renderer.setSpotlightIntensity(settings['spotlight-intensity']);
+        const sSpot = document.getElementById('spotlight-intensity');
+        if (sSpot) sSpot.value = settings['spotlight-intensity'];
+        const vSpot = document.getElementById('val-spotlight');
+        if (vSpot) vSpot.textContent = settings['spotlight-intensity'].toFixed(2);
+
+        // Spotlight Height
+        Renderer.setSpotlightHeight(settings['spotlight-height']);
+        const sHeight = document.getElementById('spotlight-height');
+        if (sHeight) sHeight.value = settings['spotlight-height'];
+        const vHeight = document.getElementById('val-spotlight-height');
+        if (vHeight) vHeight.textContent = settings['spotlight-height'].toFixed(2);
+
+        // Spotlight Distance
+        Renderer.setSpotlightDistance(settings['spotlight-distance']);
+        const sDist = document.getElementById('spotlight-distance');
+        if (sDist) sDist.value = settings['spotlight-distance'];
+        const vDist = document.getElementById('val-spotlight-distance');
+        if (vDist) vDist.textContent = settings['spotlight-distance'].toFixed(2);
+
+        // Shadow Softness
+        Renderer.setShadowSoftness(settings['shadow-softness']);
+        const sSoft = document.getElementById('shadow-softness');
+        if (sSoft) sSoft.value = settings['shadow-softness'];
+        const vSoft = document.getElementById('val-shadow');
+        if (vSoft) vSoft.textContent = settings['shadow-softness'].toFixed(2);
+
+        // Underglow Intensity
+        Renderer.setUnderglowIntensity(settings['underglow-intensity']);
+        const sUnder = document.getElementById('underglow-intensity');
+        if (sUnder) sUnder.value = settings['underglow-intensity'];
+        const vUnder = document.getElementById('val-underglow');
+        if (vUnder) vUnder.textContent = settings['underglow-intensity'].toFixed(2);
+
+        // Underglow Height
+        Renderer.setUnderglowHeight(settings['underglow-height']);
+        const sUnderH = document.getElementById('underglow-height');
+        if (sUnderH) sUnderH.value = settings['underglow-height'];
+        const vUnderH = document.getElementById('val-underglow-height');
+        if (vUnderH) vUnderH.textContent = settings['underglow-height'].toFixed(2);
+
+        // Underglow Spread
+        Renderer.setUnderglowSpread(settings['underglow-spread']);
+        const sUnderS = document.getElementById('underglow-spread');
+        if (sUnderS) sUnderS.value = settings['underglow-spread'];
+        const vUnderS = document.getElementById('val-underglow-spread');
+        if (vUnderS) vUnderS.textContent = settings['underglow-spread'].toFixed(2);
+
+        // Emissive Intensity
+        Renderer.setSelfEmissiveIntensity(settings['emissive-intensity']);
+        const sEm = document.getElementById('emissive-intensity');
+        if (sEm) sEm.value = settings['emissive-intensity'];
+        const vEm = document.getElementById('val-emissive');
+        if (vEm) vEm.textContent = settings['emissive-intensity'].toFixed(2);
+
+        // Rail Wash
+        Renderer.setRailLightWash(settings['rail-wash']);
+        const sWash = document.getElementById('rail-wash');
+        if (sWash) sWash.value = settings['rail-wash'];
+        const vWash = document.getElementById('val-rail-wash');
+        if (vWash) vWash.textContent = settings['rail-wash'].toFixed(2);
+
+        // Shadows Toggle
+        Renderer.setShadowsEnabled(settings['shadows-enabled']);
+        const cShadow = document.getElementById('shadows-toggle');
+        if (cShadow) cShadow.checked = settings['shadows-enabled'];
+    },
+
+    applyPhysics(settings) {
+        // Paddle Accel
+        PhysicsEngine.config.paddleAcceleration = settings['phys-paddle-accel'];
+        const sAccel = document.getElementById('phys-paddle-accel');
+        if (sAccel) sAccel.value = settings['phys-paddle-accel'];
+        const vAccel = document.getElementById('val-phys-paddle-accel');
+        if (vAccel) vAccel.textContent = settings['phys-paddle-accel'].toFixed(2);
+
+        // Paddle Friction
+        PhysicsEngine.config.paddleFriction = settings['phys-paddle-friction'];
+        const sFric = document.getElementById('phys-paddle-friction');
+        if (sFric) sFric.value = settings['phys-paddle-friction'];
+        const vFric = document.getElementById('val-phys-paddle-friction');
+        if (vFric) vFric.textContent = settings['phys-paddle-friction'].toFixed(2);
+
+        // Ball Speed Cap
+        this.ball.speedCap = settings['phys-ball-speed-cap'];
+        const sCap = document.getElementById('phys-ball-speed-cap');
+        if (sCap) sCap.value = settings['phys-ball-speed-cap'];
+        const vCap = document.getElementById('val-phys-ball-speed-cap');
+        if (vCap) vCap.textContent = settings['phys-ball-speed-cap'].toFixed(2);
+
+        // Speed Multiplier
+        PhysicsEngine.config.ballSpeedIncrease = settings['phys-ball-speed-mult'];
+        const sMult = document.getElementById('phys-ball-speed-mult');
+        if (sMult) sMult.value = settings['phys-ball-speed-mult'];
+        const vMult = document.getElementById('val-phys-ball-speed-mult');
+        if (vMult) vMult.textContent = ((settings['phys-ball-speed-mult'] - 1.0) * 100).toFixed(2) + '%';
+
+        // Momentum Transfer
+        PhysicsEngine.config.momentumTransfer = settings['phys-momentum-transfer'];
+        const sMom = document.getElementById('phys-momentum-transfer');
+        if (sMom) sMom.value = settings['phys-momentum-transfer'];
+        const vMom = document.getElementById('val-phys-momentum-transfer');
+        if (vMom) vMom.textContent = (settings['phys-momentum-transfer'] * 100).toFixed(0) + '%';
+    },
+
+    saveLightingSettings() {
+        const settings = {
+            'ambient-intensity': parseFloat(document.getElementById('ambient-intensity').value),
+            'spotlight-intensity': parseFloat(document.getElementById('spotlight-intensity').value),
+            'spotlight-height': parseFloat(document.getElementById('spotlight-height').value),
+            'spotlight-distance': parseFloat(document.getElementById('spotlight-distance').value),
+            'shadow-softness': parseFloat(document.getElementById('shadow-softness').value),
+            'underglow-intensity': parseFloat(document.getElementById('underglow-intensity').value),
+            'underglow-height': parseFloat(document.getElementById('underglow-height').value),
+            'underglow-spread': parseFloat(document.getElementById('underglow-spread').value),
+            'emissive-intensity': parseFloat(document.getElementById('emissive-intensity').value),
+            'rail-wash': parseFloat(document.getElementById('rail-wash').value),
+            'shadows-enabled': document.getElementById('shadows-toggle').checked
+        };
+        localStorage.setItem('pong_soccer_lighting_config', JSON.stringify(settings));
+    },
+
+    savePhysicsSettings() {
+        const settings = {
+            'phys-paddle-accel': parseFloat(document.getElementById('phys-paddle-accel').value),
+            'phys-paddle-friction': parseFloat(document.getElementById('phys-paddle-friction').value),
+            'phys-ball-speed-cap': parseFloat(document.getElementById('phys-ball-speed-cap').value),
+            'phys-ball-speed-mult': parseFloat(document.getElementById('phys-ball-speed-mult').value),
+            'phys-momentum-transfer': parseFloat(document.getElementById('phys-momentum-transfer').value)
+        };
+        localStorage.setItem('pong_soccer_physics_config', JSON.stringify(settings));
+    },
+
     showMainMenu() {
         document.getElementById('victory-screen').classList.remove('active');
         document.getElementById('title-screen').classList.add('active');
-        this.state = 'TITLE';
+        GameState.changeState('TITLE');
 
         // Stop BGM if player returns to main menu
         AudioManager.stopBGM();
@@ -584,6 +812,8 @@ const Game = {
 };
 
 // Start game after DOM load
-window.addEventListener('DOMContentLoaded', () => {
-    Game.init();
-});
+if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+        Game.init();
+    });
+}
