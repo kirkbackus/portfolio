@@ -103,6 +103,7 @@ export const Game = {
     init() {
         // Initialize inputs
         Controls.init();
+        Controls.is2Player = (this.gameMode === '2p');
 
         // Check Autoplay Mode
         const urlParams = new URLSearchParams(window.location.search);
@@ -125,6 +126,7 @@ export const Game = {
                 modeBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.gameMode = btn.dataset.mode;
+                Controls.is2Player = (this.gameMode === '2p');
                 
                 if (this.gameMode === '2p') {
                     diffSection.style.display = 'none';
